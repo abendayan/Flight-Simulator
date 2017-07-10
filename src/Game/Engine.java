@@ -108,6 +108,10 @@ public class Engine implements GLEventListener, KeyListener {
                 break;
             case EXIT:
                 System.out.println("won");
+                currentLevel++;
+                if(levels.size() < currentLevel) {
+                    // TODO create winning screen
+                }
                 win = true;
                 break;
         }
@@ -152,7 +156,7 @@ public class Engine implements GLEventListener, KeyListener {
         ////////////////////////
         // DEFINE FIRST LEVEL //
         ////////////////////////
-        Level actualLevel = new Level(0.0f, 30.0f, 0.0f,30.0f, 0.0f, 30.0f);
+        Level actualLevel = new Level(0.0f, 200.0f, 0.0f,200.0f, 0.0f, 200.0f);
         actualLevel.defineTextureFront("sky.jpg", 1.0f);
         actualLevel.defineTextureBack("sky.jpg", 1.0f);
         actualLevel.defineTextureRight("sky.jpg", 1.0f);
@@ -164,10 +168,56 @@ public class Engine implements GLEventListener, KeyListener {
         actualLevel.activateLight(new float[] {9.0f, 0.0f, 9.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
                 new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
 
-
-        currentLevel = 0;
+        actualLevel.defNumberBuilding(10);
+        actualLevel.createExit();
         actualLevel.makeObject(gl);
         levels.add(actualLevel);
+
+
+        //////////////////////////
+        /// DEFINE SECOND LEVEL //
+        //////////////////////////
+        actualLevel = new Level(0.0f, 200.0f, 0.0f,200.0f, 0.0f, 200.0f);
+        actualLevel.defineTextureFront("sky.jpg", 1.0f);
+        actualLevel.defineTextureBack("sky.jpg", 1.0f);
+        actualLevel.defineTextureRight("sky.jpg", 1.0f);
+        actualLevel.defineTextureLeft("sky.jpg", 1.0f);
+        actualLevel.defineTextureCeiling("sky.jpg", 1.0f);
+        actualLevel.defineTextureFloor("sea.jpg", 6.0f);
+        actualLevel.activateLight(new float[] {5.0f, 2.0f, 5.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
+                new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
+        actualLevel.activateLight(new float[] {9.0f, 0.0f, 9.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
+                new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
+
+        actualLevel.defNumberBuilding(30);
+        actualLevel.createExit();
+        actualLevel.makeObject(gl);
+        levels.add(actualLevel);
+
+
+        /////////////////////////
+        /// DEFINE THIRD LEVEL //
+        /////////////////////////
+        actualLevel = new Level(0.0f, 200.0f, 0.0f,200.0f, 0.0f, 200.0f);
+        actualLevel.defineTextureFront("sky.jpg", 1.0f);
+        actualLevel.defineTextureBack("sky.jpg", 1.0f);
+        actualLevel.defineTextureRight("sky.jpg", 1.0f);
+        actualLevel.defineTextureLeft("sky.jpg", 1.0f);
+        actualLevel.defineTextureCeiling("sky.jpg", 1.0f);
+        actualLevel.defineTextureFloor("sea.jpg", 6.0f);
+        actualLevel.activateLight(new float[] {5.0f, 2.0f, 5.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
+                new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
+        actualLevel.activateLight(new float[] {9.0f, 0.0f, 9.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
+                new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
+
+        actualLevel.defNumberBuilding(50);
+        // TODO add an enemy
+        actualLevel.createExit();
+        actualLevel.makeObject(gl);
+        levels.add(actualLevel);
+
+
+        currentLevel = 0;
         lastTime = System.currentTimeMillis();
         startGame = System.currentTimeMillis();
         currentTime = 0;

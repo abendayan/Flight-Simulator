@@ -2,7 +2,9 @@ package Game;
 
 import Collision.Impact;
 import Collision.ObjectCollision;
+import Collision.Type;
 import Elements.Object;
+import Elements.ObjectTextured;
 import Elements.Walls.*;
 
 import javax.media.opengl.GL2;
@@ -28,11 +30,11 @@ public class Level extends Object {
     public float Ymax;
     public float Zmin;
     public float Zmax;
+    private int numberBuildings;
     private ArrayList<float[]> positionL;
     private ArrayList<float[]> lightAmbient;
     private ArrayList<float[]> lightDiffuse;
     private ArrayList<float[]> lightSpecular;
-    private GL2 gl;
 
     public ArrayList<Object> objects;
 
@@ -58,7 +60,22 @@ public class Level extends Object {
         this.lightSpecular.add(lightSpecular);
     }
 
-    public void lightUps(GL2 gl) {
+    void defNumberBuilding(int number) {
+        numberBuildings = number;
+
+        for(int i = 0; i < numberBuildings; i++) {
+            // TODO random position
+            addObject(new ObjectTextured(new float[] {5.0f, 2.5f, 15.0f}, new float[]{0.5f, 0.5f, 0.5f},
+                    new float[]{0.0f, 0.0f, 1.0f, 0.0f}, "SkyA.obj", Type.BOX, Impact.DEAD));
+        }
+    }
+
+    void createExit() {
+        // TODO find a cool object for this
+        // TODO random position
+    }
+
+    void lightUps(GL2 gl) {
         for(int i = 0; i < positionL.size(); i++) {
             gl.glLightfv(GL_LIGHT0 + i, GL_POSITION, positionL.get(i), 0);
             gl.glLightfv(GL_LIGHT0 + i, GL2.GL_AMBIENT, lightAmbient.get(i), 0);
@@ -112,7 +129,6 @@ public class Level extends Object {
         for (Object object : objects) {
             object.makeObject(gl);
         }
-        this.gl = gl;
     }
 
     @Override
@@ -132,47 +148,29 @@ public class Level extends Object {
 
     Impact collisionDetection(ObjectCollision objectCollision) {
         Impact temp = objectCollision.impactCollision(front);
-        if(temp != Impact.CONTINUE) {
-            System.out.println("front");
-            Xmin += 10.0f;
-            front.makeObject(gl);
+        if(temp == Impact.STOP) {
+            return Impact.STOP;
         }
         temp = objectCollision.impactCollision(back);
         if(temp == Impact.CONTINUE) {
 //            temp = objectCollision.impactCollision(floor);
         }
-        if(temp != Impact.CONTINUE) {
-            Xmin += 10.0f;
-            back.makeObject(gl);
-        }
         if(temp == Impact.STOP) {
             return Impact.STOP;
         }
         temp = objectCollision.impactCollision(ceiling);
-        if(temp != Impact.CONTINUE) {
-            Ymax = 10.0f;
-            ceiling.makeObject(gl);
-        }
         if(temp == Impact.STOP) {
             return Impact.STOP;
         }
         temp = objectCollision.impactCollision(left);
-        if(temp != Impact.CONTINUE) {
-            Zmin -= 10.0f;
-            left.makeObject(gl);
-        }
         if(temp == Impact.STOP) {
             return Impact.STOP;
         }
         temp = objectCollision.impactCollision(right);
-        if(temp != Impact.CONTINUE) {
-            Zmin += 10.0f;
-            right.makeObject(gl);
-        }
         if(temp == Impact.STOP) {
             return Impact.STOP;
         }
-        temp = objectCollision.impactCollision(floor);
+        //temp = objectCollision.impactCollision(floor);
 
         for(Object object : objects) {
             if(object.exist && !object.holding) {

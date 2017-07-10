@@ -16,12 +16,12 @@ import java.util.ArrayList;
  * 336141056
  */
 abstract class Wall extends Object {
-    float Xmin;
-    float Xmax;
-    float Ymin;
-    float Ymax;
-    float Zmin;
-    float Zmax;
+    public float Xmin;
+    public float Xmax;
+    public float Ymin;
+    public float Ymax;
+    public float Zmin;
+    public float Zmax;
     float espaceTexture;
     float[] colors;
     Texture texture;
