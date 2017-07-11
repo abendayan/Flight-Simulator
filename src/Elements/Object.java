@@ -29,4 +29,7 @@ public abstract class Object {
     }
     public void display(GL2 gl) {
     }
+    public void defineImpact(Impact impact) {
+        this.impact = impact;
+    }
 }

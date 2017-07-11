@@ -65,14 +65,17 @@ public class Level extends Object {
 
         for(int i = 0; i < numberBuildings; i++) {
             // TODO random position
-            addObject(new ObjectTextured(new float[] {5.0f, 2.5f, 15.0f}, new float[]{0.5f, 0.5f, 0.5f},
-                    new float[]{0.0f, 0.0f, 1.0f, 0.0f}, "SkyA.obj", Type.BOX, Impact.DEAD));
+            // TODO create the building
+//            addObject(new ObjectTextured(new float[] {15.0f, 1.0f, 15.0f}, new float[]{0.001f, 0.001f, 0.001f},
+//                    new float[]{0.0f, 0.0f, 1.0f, 0.0f}, "SkyA.obj", Type.BOX, Impact.DEAD));
         }
     }
 
     void createExit() {
-        // TODO find a cool object for this
-        // TODO random position
+        WallFloor exit = new WallFloor(50.0f, 80.0f, 1.0f, 1.0f, 70.0f, 100.0f);
+        exit.defineTexture("green.png", 1.0f);
+        exit.defineImpact(Impact.EXIT);
+        addObject(exit);
     }
 
     void lightUps(GL2 gl) {

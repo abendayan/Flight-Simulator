@@ -46,6 +46,7 @@ public class Engine implements GLEventListener, KeyListener {
 
     private TextRenderer fpsText;
     private TextRenderer chronoText;
+    private TextRenderer winningScreen;
 
     /*
      * Gestion of keyboard events
@@ -96,8 +97,18 @@ public class Engine implements GLEventListener, KeyListener {
             case KeyEvent.VK_U: // rotation negatif - z
                 coordinate.rotateZ(-angle);
                 break;
+            case KeyEvent.VK_SPACE:
+                if(win) {
+                    if(levels.size() <= currentLevel) {
+                        exit(1);
+                    }
+                    win = false;
+                }
+                break;
         }
+        // TODO calculate when a frame pass the collision point
         Impact impact = levels.get(currentLevel).collisionDetection(temp);
+        // TODO change the direction when there is collision
         switch(impact) {
             case CONTINUE:
                 if(position.y > 0.5f) {
@@ -107,12 +118,12 @@ public class Engine implements GLEventListener, KeyListener {
                 }
                 break;
             case EXIT:
-                System.out.println("won");
-                currentLevel++;
-                if(levels.size() < currentLevel) {
-                    // TODO create winning screen
+                // TODO test the angle, if not angle correct => dead
+                if(!win) {
+                    currentLevel++;
+                    win = true;
+                    position = new Point(5.0f, 10.0f, 5.0f);
                 }
-                win = true;
                 break;
         }
     }
@@ -223,6 +234,7 @@ public class Engine implements GLEventListener, KeyListener {
         currentTime = 0;
         fpsText = new TextRenderer( new Font("Arial", Font.BOLD, 10) );
         chronoText = new TextRenderer( new Font("Arial", Font.BOLD, 20) );
+        winningScreen = new TextRenderer( new Font("Arial", Font.BOLD, 60) );
         fpsText.setSmoothing(true);
         framesPerSecond = 0;
         fps = 0.0f;
@@ -244,37 +256,54 @@ public class Engine implements GLEventListener, KeyListener {
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
-        if((float)(System.currentTimeMillis() - startGame)/1000 > 120) {
-            exit(1);
-        }
-        calculateFrameRate();
-        fps = (float)(currentTime - lastTime)/framesPerSecond;
-        if(currentTime == lastTime || framesPerSecond == 0) {
-            fps = 10.0f;
-        }
-        steep = (float)(3.9)/fps;
-        angle = (float)(12.4)/fps;
         GL2 gl = glAutoDrawable.getGL().getGL2();//get the GL object
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT); //clear the depth buffer and the color buffer
         gl.glLoadIdentity(); //init the matrix
-        glu.gluLookAt(position.x, position.y, position.z,
-                position.x + coordinate.Z.x, position.y + coordinate.Z.y, position.z + coordinate.Z.z,
-                coordinate.Y.x, coordinate.Y.y, coordinate.Y.z);
+        if(win) {
+            winningScreen.beginRendering(width, height);
+            winningScreen.setColor(Color.WHITE);
+            // TODO something more pretty
+            if(levels.size() <= currentLevel) {
+                winningScreen.draw("Won the game! Congrass!", 40, 40 );
+            }
+            else {
+                winningScreen.draw("Won the level!\n Press space to continue!", 40, height -40 );
+            }
+            winningScreen.endRendering();
+        }
+        else {
+            if((float)(System.currentTimeMillis() - startGame)/1000 > 120) {
+                exit(1);
+            }
+            calculateFrameRate();
+            fps = (float)(currentTime - lastTime)/framesPerSecond;
+            if(currentTime == lastTime || framesPerSecond == 0) {
+                fps = 10.0f;
+            }
+//            steep = (float)(0.39);
+            steep = (float)(3.9)/fps;
+//            angle = (float)(1.24);
+            angle = (float)(12.4)/fps;
 
-        levels.get(currentLevel).lightUps(gl);
-        //draw things using openGL
-        gl.glEnable(GL_TEXTURE_2D);
-        levels.get(currentLevel).display(gl);
+            glu.gluLookAt(position.x, position.y, position.z,
+                    position.x + coordinate.Z.x, position.y + coordinate.Z.y, position.z + coordinate.Z.z,
+                    coordinate.Y.x, coordinate.Y.y, coordinate.Y.z);
 
-        fpsText.beginRendering(width, height);
-        fpsText.setColor(Color.WHITE);
-        fpsText.draw("fps : " + fps, width - 100, 20);
-        fpsText.endRendering();
+            levels.get(currentLevel).lightUps(gl);
+            //draw things using openGL
+            gl.glEnable(GL_TEXTURE_2D);
+            levels.get(currentLevel).display(gl);
 
-        chronoText.beginRendering(width, height);
-        chronoText.setColor(Color.WHITE);
-        chronoText.draw((float)(System.currentTimeMillis() - startGame)/1000 + "s", width-120, height -40 );
-        chronoText.endRendering();
+            fpsText.beginRendering(width, height);
+            fpsText.setColor(Color.WHITE);
+            fpsText.draw("fps : " + fps, width - 100, 20);
+            fpsText.endRendering();
+
+            chronoText.beginRendering(width, height);
+            chronoText.setColor(Color.WHITE);
+            chronoText.draw((float)(System.currentTimeMillis() - startGame)/1000 + "s", width-120, height -40 );
+            chronoText.endRendering();
+        }
         gl.glFlush();
     }
 
