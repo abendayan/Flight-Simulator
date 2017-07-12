@@ -179,7 +179,7 @@ public class Engine implements GLEventListener, KeyListener {
         actualLevel.activateLight(new float[] {9.0f, 0.0f, 9.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
                 new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
 
-        actualLevel.defNumberBuilding(10);
+        actualLevel.defNumberBuilding(10, gl);
         actualLevel.createExit();
         actualLevel.makeObject(gl);
         levels.add(actualLevel);
@@ -200,7 +200,7 @@ public class Engine implements GLEventListener, KeyListener {
         actualLevel.activateLight(new float[] {9.0f, 0.0f, 9.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
                 new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
 
-        actualLevel.defNumberBuilding(30);
+        actualLevel.defNumberBuilding(30, gl);
         actualLevel.createExit();
         actualLevel.makeObject(gl);
         levels.add(actualLevel);
@@ -221,7 +221,7 @@ public class Engine implements GLEventListener, KeyListener {
         actualLevel.activateLight(new float[] {9.0f, 0.0f, 9.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
                 new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
 
-        actualLevel.defNumberBuilding(50);
+        actualLevel.defNumberBuilding(50, gl);
         // TODO add an enemy
         actualLevel.createExit();
         actualLevel.makeObject(gl);

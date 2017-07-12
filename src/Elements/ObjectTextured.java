@@ -63,6 +63,7 @@ public class ObjectTextured extends Object {
         }
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void display(GL2 gl) {
         if(!holding){

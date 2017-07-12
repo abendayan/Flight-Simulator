@@ -3,6 +3,7 @@ package Game;
 import Collision.Impact;
 import Collision.ObjectCollision;
 import Collision.Type;
+import Elements.Building;
 import Elements.Object;
 import Elements.ObjectTextured;
 import Elements.Walls.*;
@@ -60,15 +61,15 @@ public class Level extends Object {
         this.lightSpecular.add(lightSpecular);
     }
 
-    void defNumberBuilding(int number) {
+    void defNumberBuilding(int number, GL2 gl) {
         numberBuildings = number;
 
-        for(int i = 0; i < numberBuildings; i++) {
+//        for(int i = 0; i < numberBuildings; i++) {
             // TODO random position
             // TODO create the building
-//            addObject(new ObjectTextured(new float[] {15.0f, 1.0f, 15.0f}, new float[]{0.001f, 0.001f, 0.001f},
-//                    new float[]{0.0f, 0.0f, 1.0f, 0.0f}, "SkyA.obj", Type.BOX, Impact.DEAD));
-        }
+            addObject(new Building(new float[] {15.0f, 1.0f, 15.0f}, new float[]{10.0f, 10.0f, 10.0f},
+                    new float[]{0.0f, 0.0f, 1.0f, 0.0f}, gl));
+//        }
     }
 
     void createExit() {
