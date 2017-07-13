@@ -3,6 +3,7 @@ package Game;
 import Collision.Impact;
 import Collision.ObjectCollision;
 import Collision.Type;
+import Elements.Ball;
 import Elements.Building;
 import Elements.Object;
 import Elements.ObjectTextured;
@@ -10,6 +11,7 @@ import Elements.Walls.*;
 
 import javax.media.opengl.GL2;
 import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_LIGHT0;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_POSITION;
@@ -19,12 +21,12 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_POSITION;
  * 336141056
  */
 public class Level extends Object {
-    public WallFront front;
-    public WallBack back;
-    public WallLeft left;
-    public WallRight right;
-    public WallFloor floor;
-    public WallCeiling ceiling;
+    private WallFront front;
+    private WallBack back;
+    private WallLeft left;
+    private WallRight right;
+    private WallFloor floor;
+    private WallCeiling ceiling;
     public float Xmin;
     public float Xmax;
     public float Ymin;
@@ -37,16 +39,18 @@ public class Level extends Object {
     private ArrayList<float[]> lightDiffuse;
     private ArrayList<float[]> lightSpecular;
 
-    public ArrayList<Object> objects;
+    private ArrayList<Object> objects;
+    private ArrayList<Ball> balls;
 
-    public Level(float Xmin, float Xmax, float Ymin, float Ymax, float Zmin,
-                 float Zmax) {
+    Level(float Xmin, float Xmax, float Ymin, float Ymax, float Zmin,
+          float Zmax) {
         this.Xmin = Xmin;
         this.Xmax = Xmax;
         this.Ymin = Ymin;
         this.Ymax = Ymax;
         this.Zmin = Zmin;
         this.Zmax = Zmax;
+        balls = new ArrayList<>();
         objects = new ArrayList<>();
         positionL = new ArrayList<>();
         lightAmbient = new ArrayList<>();
@@ -54,7 +58,11 @@ public class Level extends Object {
         lightSpecular = new ArrayList<>();
     }
 
-    public void activateLight(float[] positionL, float[] lightAmbient, float[] lightDiffuse, float[] lightSpecular) {
+    void addBall(Ball newBall) {
+        balls.add(newBall);
+    }
+
+    void activateLight(float[] positionL, float[] lightAmbient, float[] lightDiffuse, float[] lightSpecular) {
         this.positionL.add(positionL);
         this.lightAmbient.add(lightAmbient);
         this.lightDiffuse.add(lightDiffuse);
@@ -63,13 +71,12 @@ public class Level extends Object {
 
     void defNumberBuilding(int number, GL2 gl) {
         numberBuildings = number;
-
-//        for(int i = 0; i < numberBuildings; i++) {
-            // TODO random position
-            // TODO create the building
-            addObject(new Building(new float[] {15.0f, 1.0f, 15.0f}, new float[]{10.0f, 10.0f, 10.0f},
+        for(int i = 0; i < numberBuildings; i++) {
+            addObject(new Building(new float[] {(float) ThreadLocalRandom.current().nextInt(15, 250), 0.0f,
+                    (float) ThreadLocalRandom.current().nextInt(15, 250)},
+                    new float[]{5.0f, (float) ThreadLocalRandom.current().nextInt(8, 100), 5.0f},
                     new float[]{0.0f, 0.0f, 1.0f, 0.0f}, gl));
-//        }
+        }
     }
 
     void createExit() {
@@ -133,6 +140,9 @@ public class Level extends Object {
         for (Object object : objects) {
             object.makeObject(gl);
         }
+        for(Ball ball : balls) {
+            ball.makeObject(gl);
+        }
     }
 
     @Override
@@ -148,6 +158,9 @@ public class Level extends Object {
                 object.display(gl);
             }
         }
+        for(Ball ball : balls) {
+            ball.makeObject(gl);
+        }
     }
 
     Impact collisionDetection(ObjectCollision objectCollision) {
@@ -157,6 +170,7 @@ public class Level extends Object {
         }
         temp = objectCollision.impactCollision(back);
         if(temp == Impact.CONTINUE) {
+            // TODO something with the floor
 //            temp = objectCollision.impactCollision(floor);
         }
         if(temp == Impact.STOP) {
@@ -190,5 +204,14 @@ public class Level extends Object {
             }
         }
         return temp;
+    }
+
+    public void collisionBalls() {
+        for(Ball ball : balls) {
+            Impact impactBall = collisionDetection(ball.collisionModel);
+            if(impactBall != Impact.CONTINUE) {
+                ball.direction = new float[] { 0.0f, 0.0f, 0.0f };
+            }
+        }
     }
 }

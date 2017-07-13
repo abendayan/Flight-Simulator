@@ -1,10 +1,15 @@
 package Elements;
 
+import Collision.AABB;
 import Collision.Impact;
+import Collision.Type;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
+import com.sun.javafx.geom.Vec3d;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import javax.media.opengl.GL2;
 
 /**
@@ -29,6 +34,45 @@ public class Building extends Object {
         }
         makeObject(gl);
         impact = Impact.DEAD;
+        collisionType = Type.BOX;
+        vertices = new ArrayList<>();
+
+        // front
+        vertices.add(new Vec3d(0.0f, 1.0f, 0.0f));
+        vertices.add(new Vec3d(1.0f, 1.0f, 0.0f));
+        vertices.add(new Vec3d(1.0f, 1.0f, 1.0f));
+        vertices.add(new Vec3d(0.0f, 1.0f, 1.0f));
+
+        // back
+        vertices.add(new Vec3d(0.0f, 0.0f, 0.0f));
+        vertices.add(new Vec3d(1.0f, 0.0f, 0.0f));
+        vertices.add(new Vec3d(1.0f, 0.0f, 1.0f));
+        vertices.add(new Vec3d(0.0f, 0.0f, 1.0f));
+
+        // right
+        vertices.add(new Vec3d(1.0f, 1.0f, 0.0f));
+        vertices.add(new Vec3d(1.0f, 0.0f, 0.0f));
+        vertices.add(new Vec3d(1.0f, 0.0f, 1.0f));
+        vertices.add(new Vec3d(1.0f, 1.0f, 1.0f));
+
+        // left
+        vertices.add(new Vec3d(0.0f, 0.0f, 0.0f));
+        vertices.add(new Vec3d(0.0f, 1.0f, 0.0f));
+        vertices.add(new Vec3d(0.0f, 1.0f, 1.0f));
+        vertices.add(new Vec3d(0.0f, 0.0f, 1.0f));
+
+        // Bottom
+        vertices.add(new Vec3d(0.0f, 0.0f, 0.0f));
+        vertices.add(new Vec3d(1.0f, 0.0f, 0.0f));
+        vertices.add(new Vec3d(1.0f, 1.0f, 0.0f));
+        vertices.add(new Vec3d(0.0f, 1.0f, 0.0f));
+
+        // Top
+        vertices.add(new Vec3d(0.0f, 0.0f, 1.0f));
+        vertices.add(new Vec3d(1.0f, 0.0f, 1.0f));
+        vertices.add(new Vec3d(1.0f, 1.0f, 1.0f));
+        vertices.add(new Vec3d(0.0f, 1.0f, 1.0f));
+        collisionModel = new AABB(vertices, translate, scale, rotate);
     }
 
     @Override
@@ -48,7 +92,7 @@ public class Building extends Object {
         gl.glVertex3f( 1.0f, 1.0f, 0.0f);
         gl.glTexCoord2f(1.0f, 1.0f);
         gl.glVertex3f(1.0f, 1.0f, 1.0f);
-        gl.glTexCoord2f(1.0f, 0.0f);
+        gl.glTexCoord2f(15.0f, 0.0f);
         gl.glVertex3f(0.0f, 1.0f, 1.0f);
 
         // Back
@@ -109,13 +153,11 @@ public class Building extends Object {
     @SuppressWarnings("Duplicates")
     @Override
     public void display(GL2 gl) {
-        if(!holding){
-            gl.glPushMatrix();
-            gl.glTranslatef(translate[0], translate[1], translate[2]);
-            gl.glRotatef(rotate[0], rotate[1], rotate[2], rotate[3]);
-            gl.glScalef(scale[0], scale[1], scale[2]);
-            gl.glCallList(building);
-            gl.glPopMatrix();
-        }
+        gl.glPushMatrix();
+        gl.glTranslatef(translate[0], translate[1], translate[2]);
+        gl.glRotatef(rotate[0], rotate[1], rotate[2], rotate[3]);
+        gl.glScalef(scale[0], scale[1], scale[2]);
+        gl.glCallList(building);
+        gl.glPopMatrix();
     }
 }

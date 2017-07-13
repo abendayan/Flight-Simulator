@@ -8,11 +8,15 @@ import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.KeyListener;
 import com.jogamp.newt.event.awt.AWTKeyAdapter;
 import com.jogamp.opengl.util.awt.TextRenderer;
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureIO;
 
 import javax.media.opengl.*;
 import javax.media.opengl.glu.GLU;
 
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import static java.lang.System.exit;
@@ -35,6 +39,7 @@ public class Engine implements GLEventListener, KeyListener {
     private int width;
     private int height;
     private boolean win;
+    private boolean dead;
 
     private long previousTimestamp;
     private long lastTime;
@@ -104,6 +109,9 @@ public class Engine implements GLEventListener, KeyListener {
                     }
                     win = false;
                 }
+                if(dead) {
+                    dead = false;
+                }
                 break;
         }
         // TODO calculate when a frame pass the collision point
@@ -123,8 +131,28 @@ public class Engine implements GLEventListener, KeyListener {
                     currentLevel++;
                     win = true;
                     position = new Point(5.0f, 10.0f, 5.0f);
+                    coordinate = new Coordinate();
                 }
                 break;
+            case DEAD:
+                position = new Point(5.0f, 10.0f, 5.0f);
+                coordinate = new Coordinate();
+                dead = true;
+                break;
+        }
+    }
+
+    private void movePlane() {
+        Point temp = new Point((float)(position.x + coordinate.Z.x), (float)(position.y + coordinate.Z.y),
+                (float)(position.z + coordinate.Z.z));
+        temp.addScale(coordinate.Z, 0.005f);
+        Impact impact = levels.get(currentLevel).collisionDetection(temp);
+        if(impact == Impact.CONTINUE) {
+            if(position.y > 0.5f) {
+                position.x = temp.x - coordinate.Z.x;
+                position.y = temp.y - coordinate.Z.y;
+                position.z = temp.z - coordinate.Z.z;
+            }
         }
     }
 
@@ -139,7 +167,7 @@ public class Engine implements GLEventListener, KeyListener {
         width = 800;
         height = 640;
         win = false;
-        previousTimestamp = System.currentTimeMillis();
+
         if (glAutoDrawable instanceof Window) {
             Window window = (Window) glAutoDrawable;
             window.addKeyListener(this);
@@ -179,7 +207,7 @@ public class Engine implements GLEventListener, KeyListener {
         actualLevel.activateLight(new float[] {9.0f, 0.0f, 9.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
                 new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
 
-        actualLevel.defNumberBuilding(10, gl);
+        actualLevel.defNumberBuilding(50, gl);
         actualLevel.createExit();
         actualLevel.makeObject(gl);
         levels.add(actualLevel);
@@ -200,7 +228,7 @@ public class Engine implements GLEventListener, KeyListener {
         actualLevel.activateLight(new float[] {9.0f, 0.0f, 9.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
                 new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
 
-        actualLevel.defNumberBuilding(30, gl);
+        actualLevel.defNumberBuilding(100, gl);
         actualLevel.createExit();
         actualLevel.makeObject(gl);
         levels.add(actualLevel);
@@ -221,12 +249,11 @@ public class Engine implements GLEventListener, KeyListener {
         actualLevel.activateLight(new float[] {9.0f, 0.0f, 9.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
                 new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
 
-        actualLevel.defNumberBuilding(50, gl);
+        actualLevel.defNumberBuilding(150, gl);
         // TODO add an enemy
         actualLevel.createExit();
         actualLevel.makeObject(gl);
         levels.add(actualLevel);
-
 
         currentLevel = 0;
         lastTime = System.currentTimeMillis();
@@ -237,6 +264,7 @@ public class Engine implements GLEventListener, KeyListener {
         winningScreen = new TextRenderer( new Font("Arial", Font.BOLD, 60) );
         fpsText.setSmoothing(true);
         framesPerSecond = 0;
+        previousTimestamp = System.currentTimeMillis();
         fps = 0.0f;
     }
 
@@ -271,7 +299,7 @@ public class Engine implements GLEventListener, KeyListener {
             }
             winningScreen.endRendering();
         }
-        else {
+        else if(!dead){
             if((float)(System.currentTimeMillis() - startGame)/1000 > 120) {
                 exit(1);
             }
@@ -280,10 +308,9 @@ public class Engine implements GLEventListener, KeyListener {
             if(currentTime == lastTime || framesPerSecond == 0) {
                 fps = 10.0f;
             }
-//            steep = (float)(0.39);
             steep = (float)(3.9)/fps;
-//            angle = (float)(1.24);
             angle = (float)(12.4)/fps;
+            movePlane();
 
             glu.gluLookAt(position.x, position.y, position.z,
                     position.x + coordinate.Z.x, position.y + coordinate.Z.y, position.z + coordinate.Z.z,
@@ -294,6 +321,12 @@ public class Engine implements GLEventListener, KeyListener {
             gl.glEnable(GL_TEXTURE_2D);
             levels.get(currentLevel).display(gl);
 
+            if(currentLevel > 1) {
+                levels.get(currentLevel). collisionBalls();
+            }
+
+            // TODO create a control board
+
             fpsText.beginRendering(width, height);
             fpsText.setColor(Color.WHITE);
             fpsText.draw("fps : " + fps, width - 100, 20);
@@ -303,6 +336,13 @@ public class Engine implements GLEventListener, KeyListener {
             chronoText.setColor(Color.WHITE);
             chronoText.draw((float)(System.currentTimeMillis() - startGame)/1000 + "s", width-120, height -40 );
             chronoText.endRendering();
+        }
+        else {
+            winningScreen.beginRendering(width, height);
+            winningScreen.setColor(Color.RED);
+            // TODO something more pretty
+            winningScreen.draw("Lost! Press space to try again", 40, height -40 );
+            winningScreen.endRendering();
         }
         gl.glFlush();
     }
