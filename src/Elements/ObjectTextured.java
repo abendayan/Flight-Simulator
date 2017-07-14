@@ -66,14 +66,12 @@ public class ObjectTextured extends Object {
     @SuppressWarnings("Duplicates")
     @Override
     public void display(GL2 gl) {
-        if(!holding){
-            gl.glPushMatrix();
-            gl.glTranslatef(translate[0], translate[1], translate[2]);
-            gl.glRotatef(rotate[0], rotate[1], rotate[2], rotate[3]);
-            gl.glScalef(scale[0], scale[1], scale[2]);
-            gl.glCallList(object);
-            gl.glPopMatrix();
-        }
+        gl.glPushMatrix();
+        gl.glTranslatef(translate[0], translate[1], translate[2]);
+        gl.glRotatef(rotate[0], rotate[1], rotate[2], rotate[3]);
+        gl.glScalef(scale[0], scale[1], scale[2]);
+        gl.glCallList(object);
+        gl.glPopMatrix();
     }
 
     @Override

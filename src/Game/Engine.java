@@ -2,6 +2,7 @@ package Game;
 
 import Collision.Impact;
 import Collision.Point;
+import Elements.Plane;
 import Utilities.Coordinate;
 import com.jogamp.newt.Window;
 import com.jogamp.newt.event.KeyEvent;
@@ -52,6 +53,7 @@ public class Engine implements GLEventListener, KeyListener {
     private TextRenderer fpsText;
     private TextRenderer chronoText;
     private TextRenderer winningScreen;
+    Plane plane;
 
     /*
      * Gestion of keyboard events
@@ -117,12 +119,16 @@ public class Engine implements GLEventListener, KeyListener {
         // TODO calculate when a frame pass the collision point
         Impact impact = levels.get(currentLevel).collisionDetection(temp);
         // TODO change the direction when there is collision
+        impactPlane(impact, temp);
+    }
+
+    private void impactPlane(Impact impact, Point point) {
         switch(impact) {
             case CONTINUE:
                 if(position.y > 0.5f) {
-                    position.x = temp.x - coordinate.Z.x;
-                    position.y = temp.y - coordinate.Z.y;
-                    position.z = temp.z - coordinate.Z.z;
+                    position.x = point.x - coordinate.Z.x;
+                    position.y = point.y - coordinate.Z.y;
+                    position.z = point.z - coordinate.Z.z;
                 }
                 break;
             case EXIT:
@@ -147,13 +153,7 @@ public class Engine implements GLEventListener, KeyListener {
                 (float)(position.z + coordinate.Z.z));
         temp.addScale(coordinate.Z, 0.005f);
         Impact impact = levels.get(currentLevel).collisionDetection(temp);
-        if(impact == Impact.CONTINUE) {
-            if(position.y > 0.5f) {
-                position.x = temp.x - coordinate.Z.x;
-                position.y = temp.y - coordinate.Z.y;
-                position.z = temp.z - coordinate.Z.z;
-            }
-        }
+        impactPlane(impact, temp);
     }
 
     @Override
@@ -266,6 +266,8 @@ public class Engine implements GLEventListener, KeyListener {
         framesPerSecond = 0;
         previousTimestamp = System.currentTimeMillis();
         fps = 0.0f;
+        plane = new Plane("AN-24PB_obj.obj");
+        plane.makeObject(gl);
     }
 
     private void calculateFrameRate() {
@@ -319,6 +321,8 @@ public class Engine implements GLEventListener, KeyListener {
             levels.get(currentLevel).lightUps(gl);
             //draw things using openGL
             gl.glEnable(GL_TEXTURE_2D);
+            plane.displayPlane(gl, new float[] {(float)(position.x+ coordinate.Z.x),
+                    (float)(position.y + coordinate.Z.y), (float)(position.z + coordinate.Z.z)});
             levels.get(currentLevel).display(gl);
 
             if(currentLevel > 1) {

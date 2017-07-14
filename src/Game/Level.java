@@ -58,8 +58,9 @@ public class Level extends Object {
         lightSpecular = new ArrayList<>();
     }
 
-    void addBall(Ball newBall) {
+    void addBall(Ball newBall, GL2 gl) {
         balls.add(newBall);
+        newBall.makeObject(gl);
     }
 
     void activateLight(float[] positionL, float[] lightAmbient, float[] lightDiffuse, float[] lightSpecular) {
@@ -71,16 +72,38 @@ public class Level extends Object {
 
     void defNumberBuilding(int number, GL2 gl) {
         numberBuildings = number;
-        for(int i = 0; i < numberBuildings; i++) {
-            addObject(new Building(new float[] {(float) ThreadLocalRandom.current().nextInt(15, 250), 0.0f,
-                    (float) ThreadLocalRandom.current().nextInt(15, 250)},
+        int j = 0;
+        for(int i = 0; i < numberBuildings; i+=5) {
+            addObject(new Building(new float[] {(15.0f + j*12.0f)*0.98f, 0.0f,
+                    (15.0f + i*12.0f)*0.17f},
                     new float[]{5.0f, (float) ThreadLocalRandom.current().nextInt(8, 100), 5.0f},
                     new float[]{0.0f, 0.0f, 1.0f, 0.0f}, gl));
+
+            addObject(new Building(new float[] {(15.0f + j*12.0f)*0.94f, 0.0f,
+                    (15.0f + j*12.0f)*0.34f},
+                    new float[]{5.0f, (float) ThreadLocalRandom.current().nextInt(8, 100), 5.0f},
+                    new float[]{0.0f, 0.0f, 1.0f, 0.0f}, gl));
+
+            addObject(new Building(new float[] {(15.0f + j*12.0f)*0.87f, 0.0f,
+                    (15.0f + j*12.0f)*0.5f},
+                    new float[]{5.0f, (float) ThreadLocalRandom.current().nextInt(8, 100), 5.0f},
+                    new float[]{0.0f, 0.0f, 1.0f, 0.0f}, gl));
+
+            addObject(new Building(new float[] {(15.0f + j*12.0f)*0.64f, 0.0f,
+                    (15.0f + j*12.0f)*0.77f},
+                    new float[]{5.0f, (float) ThreadLocalRandom.current().nextInt(8, 100), 5.0f},
+                    new float[]{0.0f, 0.0f, 1.0f, 0.0f}, gl));
+
+            addObject(new Building(new float[] {(15.0f + j*12.0f)*0.5f, 0.0f,
+                    (15.0f + j*12.0f)*0.87f},
+                    new float[]{5.0f, (float) ThreadLocalRandom.current().nextInt(8, 100), 5.0f},
+                    new float[]{0.0f, 0.0f, 1.0f, 0.0f}, gl));
+            j++;
         }
     }
 
     void createExit() {
-        WallFloor exit = new WallFloor(50.0f, 80.0f, 1.0f, 1.0f, 70.0f, 100.0f);
+        WallFloor exit = new WallFloor(100.0f, 120.0f, 1.0f, 1.0f, 120.0f, 150.0f);
         exit.defineTexture("green.png", 1.0f);
         exit.defineImpact(Impact.EXIT);
         addObject(exit);
@@ -95,7 +118,7 @@ public class Level extends Object {
         }
     }
 
-    public void addObject(Object object) {
+    private void addObject(Object object) {
         objects.add(object);
     }
 
