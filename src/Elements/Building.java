@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import javax.media.opengl.GL2;
 
+import static javax.media.opengl.GL.GL_TEXTURE_2D;
+
 /**
  * Adele Bendayan
  * 336141056
@@ -83,56 +85,58 @@ public class Building extends Object {
 
         texture.bind(gl);
         texture.enable(gl);
+        gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
         gl.glBegin(GL2.GL_QUADS);
 
         // front
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex3f(0.0f, 1.0f, 0.0f);
-        gl.glTexCoord2f(0.0f, 1.0f);
+        gl.glTexCoord2f(0.0f, 10.0f);
         gl.glVertex3f( 1.0f, 1.0f, 0.0f);
-        gl.glTexCoord2f(1.0f, 1.0f);
+        gl.glTexCoord2f(10.0f, 10.0f);
         gl.glVertex3f(1.0f, 1.0f, 1.0f);
-        gl.glTexCoord2f(15.0f, 0.0f);
+        gl.glTexCoord2f(10.0f, 0.0f);
         gl.glVertex3f(0.0f, 1.0f, 1.0f);
 
         // Back
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex3f(0.0f, 0.0f, 0.0f);
-        gl.glTexCoord2f(0.0f, 1.0f);
+        gl.glTexCoord2f(0.0f, 10.0f);
         gl.glVertex3f(1.0f, 0.0f, 0.0f);
-        gl.glTexCoord2f(1.0f, 1.0f);
+        gl.glTexCoord2f(10.0f, 10.0f);
         gl.glVertex3f(1.0f, 0.0f, 1.0f);
-        gl.glTexCoord2f(1.0f, 0.0f);
+        gl.glTexCoord2f(10.0f, 0.0f);
         gl.glVertex3f(0.0f, 0.0f, 1.0f);
 
         // Right
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex3f(1.0f, 1.0f, 0.0f);
-        gl.glTexCoord2f(0.0f, 1.0f);
+        gl.glTexCoord2f(0.0f, 10.0f);
         gl.glVertex3f(1.0f, 0.0f, 0.0f);
-        gl.glTexCoord2f(1.0f, 1.0f);
+        gl.glTexCoord2f(10.0f, 10.0f);
         gl.glVertex3f(1.0f, 0.0f, 1.0f);
-        gl.glTexCoord2f(1.0f, 0.0f);
+        gl.glTexCoord2f(10.0f, 0.0f);
         gl.glVertex3f(1.0f, 1.0f, 1.0f);
 
         // Left
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex3f(0.0f, 0.0f, 0.0f);
-        gl.glTexCoord2f(0.0f, 1.0f);
+        gl.glTexCoord2f(0.0f, 10.0f);
         gl.glVertex3f(0.0f, 1.0f, 0.0f);
-        gl.glTexCoord2f(1.0f, 1.0f);
+        gl.glTexCoord2f(10.0f, 10.0f);
         gl.glVertex3f(0.0f, 1.0f, 1.0f);
-        gl.glTexCoord2f(1.0f, 0.0f);
+        gl.glTexCoord2f(10.0f, 0.0f);
         gl.glVertex3f(0.0f, 0.0f, 1.0f);
 
         // Bottom
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex3f(0.0f, 0.0f, 0.0f);
-        gl.glTexCoord2f(1.0f, 0.0f);
+        gl.glTexCoord2f(10.0f, 0.0f);
         gl.glVertex3f(1.0f, 0.0f, 0.0f);
-        gl.glTexCoord2f(1.0f, 1.0f);
+        gl.glTexCoord2f(10.0f, 10.0f);
         gl.glVertex3f(1.0f, 1.0f, 0.0f);
-        gl.glTexCoord2f(0.0f, 1.0f);
+        gl.glTexCoord2f(0.0f, 10.0f);
         gl.glVertex3f(0.0f, 1.0f, 0.0f);
 
         // Top

@@ -41,13 +41,13 @@ public class WallLeftRight extends Wall {
         gl.glTexCoord2f(0.0f, 0.0f);
         vertices.add(new Vec3d(X, Ymax, Zmin));
         gl.glVertex3f(X, Ymax, Zmin);
-        gl.glTexCoord2f(espaceTexture, 0.0f);
+        gl.glTexCoord2f(0.0f, espaceTexture);
         vertices.add(new Vec3d(X, Ymin, Zmin));
         gl.glVertex3f(X, Ymin, Zmin);
         gl.glTexCoord2f(espaceTexture, espaceTexture);
         vertices.add(new Vec3d(X, Ymin, Zmax));
         gl.glVertex3f(X, Ymin, Zmax);
-        gl.glTexCoord2f(0.0f, espaceTexture);
+        gl.glTexCoord2f(espaceTexture, 0.0f);
         vertices.add(new Vec3d(X, Ymax, Zmax));
         gl.glVertex3f(X, Ymax, Zmax);
 

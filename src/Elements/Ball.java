@@ -16,7 +16,7 @@ public class Ball extends Object  {
     public float[] direction;
     int ball;
 
-    Ball(float[] start, float[] plane, GL2 gl) {
+    public Ball(float[] start, float[] plane, GL2 gl) {
         translate = start;
         impact = Impact.DEAD;
         calculateStep(start, plane);

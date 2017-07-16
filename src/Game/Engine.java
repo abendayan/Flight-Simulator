@@ -2,26 +2,27 @@ package Game;
 
 import Collision.Impact;
 import Collision.Point;
-import Elements.Plane;
+import Collision.Type;
+import Elements.Object;
+import Elements.ObjectTextured;
+import Elements.Walls.*;
 import Utilities.Coordinate;
 import com.jogamp.newt.Window;
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.KeyListener;
 import com.jogamp.newt.event.awt.AWTKeyAdapter;
 import com.jogamp.opengl.util.awt.TextRenderer;
-import com.jogamp.opengl.util.texture.Texture;
-import com.jogamp.opengl.util.texture.TextureIO;
 
 import javax.media.opengl.*;
 import javax.media.opengl.glu.GLU;
 
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import static java.lang.System.exit;
+import static javax.media.opengl.GL.GL_DEPTH_BUFFER_BIT;
 import static javax.media.opengl.GL.GL_TEXTURE_2D;
+import static javax.media.opengl.GL2GL3.GL_QUADS;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.*;
 
 /**
@@ -53,7 +54,6 @@ public class Engine implements GLEventListener, KeyListener {
     private TextRenderer fpsText;
     private TextRenderer chronoText;
     private TextRenderer winningScreen;
-    Plane plane;
 
     /*
      * Gestion of keyboard events
@@ -134,8 +134,8 @@ public class Engine implements GLEventListener, KeyListener {
             case EXIT:
                 // TODO test the angle, if not angle correct => dead
                 if(!win) {
-                    currentLevel++;
                     win = true;
+                    currentLevel++;
                     position = new Point(5.0f, 10.0f, 5.0f);
                     coordinate = new Coordinate();
                 }
@@ -185,9 +185,7 @@ public class Engine implements GLEventListener, KeyListener {
         gl.glClearDepth(1.0f);
         gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST);
         glu = new GLU(); //init the GLU object
-        gl.glMatrixMode(GL2.GL_PROJECTION); //switch to projection matrix
-        gl.glEnable(GL_NORMALIZE);
-        gl.glLoadIdentity(); //init the matrix
+        define3D(gl);
         gl.glEnable(GL_LIGHTING);
         gl.glEnable(GL_LIGHT0);
         gl.glEnable(GL_LIGHT1);
@@ -207,8 +205,9 @@ public class Engine implements GLEventListener, KeyListener {
         actualLevel.activateLight(new float[] {9.0f, 0.0f, 9.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
                 new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
 
-        actualLevel.defNumberBuilding(50, gl);
-        actualLevel.createExit();
+        actualLevel.defNumberBuilding(80, gl);
+        actualLevel.createExit(100.0f);
+
         actualLevel.makeObject(gl);
         levels.add(actualLevel);
 
@@ -228,8 +227,13 @@ public class Engine implements GLEventListener, KeyListener {
         actualLevel.activateLight(new float[] {9.0f, 0.0f, 9.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
                 new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
 
-        actualLevel.defNumberBuilding(100, gl);
-        actualLevel.createExit();
+        actualLevel.defNumberBuilding(20, gl);
+        actualLevel.createExit(120.0f);
+
+        ObjectTextured boat = new ObjectTextured(new float[] {120.0f, 1.0f, 120.0f}, new float[] {5.0f, 5.0f, 5.0f},
+                new float[] {-90.0f, 1.0f, 0.0f, 0.0f}, "ShipMoscow.obj", Type.BOX);
+        boat.defineImpact(Impact.DEAD);
+        actualLevel.addObject(boat);
         actualLevel.makeObject(gl);
         levels.add(actualLevel);
 
@@ -251,7 +255,11 @@ public class Engine implements GLEventListener, KeyListener {
 
         actualLevel.defNumberBuilding(150, gl);
         // TODO add an enemy
-        actualLevel.createExit();
+        ObjectTextured boatThirdLevel = new ObjectTextured(new float[] {20.0f, 1.0f, 120.0f}, new float[] {2.0f, 2.0f, 2.0f},
+                new float[] {-90.0f, 1.0f, 0.0f, 1.0f}, "ShipMoscow.obj", Type.BOX);
+        boatThirdLevel.defineImpact(Impact.DEAD);
+        actualLevel.addObject(boatThirdLevel);
+        actualLevel.createExit(90.0f);
         actualLevel.makeObject(gl);
         levels.add(actualLevel);
 
@@ -266,17 +274,12 @@ public class Engine implements GLEventListener, KeyListener {
         framesPerSecond = 0;
         previousTimestamp = System.currentTimeMillis();
         fps = 0.0f;
-        plane = new Plane("AN-24PB_obj.obj");
-        plane.makeObject(gl);
     }
 
-    private void calculateFrameRate() {
-        currentTime =  System.currentTimeMillis();
-        ++framesPerSecond;
-        if( currentTime - lastTime > 1000 ) {
-            framesPerSecond = 0;
-            lastTime = currentTime;
-        }
+    private void define3D(GL2 gl) {
+        gl.glMatrixMode(GL2.GL_PROJECTION); //switch to projection matrix
+        gl.glEnable(GL_NORMALIZE);
+        gl.glLoadIdentity(); //init the matrix
     }
 
     @Override
@@ -287,7 +290,7 @@ public class Engine implements GLEventListener, KeyListener {
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
         GL2 gl = glAutoDrawable.getGL().getGL2();//get the GL object
-        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT); //clear the depth buffer and the color buffer
+        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear the depth buffer and the color buffer
         gl.glLoadIdentity(); //init the matrix
         if(win) {
             winningScreen.beginRendering(width, height);
@@ -302,16 +305,9 @@ public class Engine implements GLEventListener, KeyListener {
             winningScreen.endRendering();
         }
         else if(!dead){
-            if((float)(System.currentTimeMillis() - startGame)/1000 > 120) {
-                exit(1);
-            }
-            calculateFrameRate();
-            fps = (float)(currentTime - lastTime)/framesPerSecond;
-            if(currentTime == lastTime || framesPerSecond == 0) {
-                fps = 10.0f;
-            }
-            steep = (float)(3.9)/fps;
-            angle = (float)(12.4)/fps;
+
+            steep = 3.9f /1.5f;
+            angle = 12.4f /1.5f;
             movePlane();
 
             glu.gluLookAt(position.x, position.y, position.z,
@@ -321,20 +317,19 @@ public class Engine implements GLEventListener, KeyListener {
             levels.get(currentLevel).lightUps(gl);
             //draw things using openGL
             gl.glEnable(GL_TEXTURE_2D);
-            plane.displayPlane(gl, new float[] {(float)(position.x+ coordinate.Z.x),
-                    (float)(position.y + coordinate.Z.y), (float)(position.z + coordinate.Z.z)});
             levels.get(currentLevel).display(gl);
 
             if(currentLevel > 1) {
-                levels.get(currentLevel). collisionBalls();
+                levels.get(currentLevel).collisionBalls();
             }
 
-            // TODO create a control board
-
-            fpsText.beginRendering(width, height);
-            fpsText.setColor(Color.WHITE);
-            fpsText.draw("fps : " + fps, width - 100, 20);
-            fpsText.endRendering();
+            currentTime =  System.currentTimeMillis();
+            if( currentTime - lastTime > 3000 ) {
+                lastTime = currentTime;
+                if(currentLevel > 1) {
+                    levels.get(currentLevel).shootBall(gl, position);
+                }
+            }
 
             chronoText.beginRendering(width, height);
             chronoText.setColor(Color.WHITE);

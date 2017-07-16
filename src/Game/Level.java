@@ -2,6 +2,7 @@ package Game;
 
 import Collision.Impact;
 import Collision.ObjectCollision;
+import Collision.Point;
 import Collision.Type;
 import Elements.Ball;
 import Elements.Building;
@@ -10,6 +11,7 @@ import Elements.ObjectTextured;
 import Elements.Walls.*;
 
 import javax.media.opengl.GL2;
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -63,6 +65,13 @@ public class Level extends Object {
         newBall.makeObject(gl);
     }
 
+    void shootBall(GL2 gl, Point position){
+        float[] from = new float[]{20.0f, 0.0f, 120.0f};
+        float[] to = new float[] {(float)position.x, (float)position.y, (float) position.z};
+        Ball ball = new Ball(from, to, gl);
+        addBall(ball, gl);
+    }
+
     void activateLight(float[] positionL, float[] lightAmbient, float[] lightDiffuse, float[] lightSpecular) {
         this.positionL.add(positionL);
         this.lightAmbient.add(lightAmbient);
@@ -102,8 +111,9 @@ public class Level extends Object {
         }
     }
 
-    void createExit() {
-        WallFloor exit = new WallFloor(100.0f, 120.0f, 1.0f, 1.0f, 120.0f, 150.0f);
+    void createExit(float position) {
+        WallFloor exit = new WallFloor(position, position+20.0f, 1.0f, 1.0f,
+                position+20.0f, position+50.0f);
         exit.defineTexture("green.png", 1.0f);
         exit.defineImpact(Impact.EXIT);
         addObject(exit);
@@ -118,7 +128,7 @@ public class Level extends Object {
         }
     }
 
-    private void addObject(Object object) {
+    public void addObject(Object object) {
         objects.add(object);
     }
 
@@ -181,6 +191,7 @@ public class Level extends Object {
                 object.display(gl);
             }
         }
+
         for(Ball ball : balls) {
             ball.makeObject(gl);
         }
@@ -207,6 +218,7 @@ public class Level extends Object {
         if(temp == Impact.STOP) {
             return Impact.STOP;
         }
+
         temp = objectCollision.impactCollision(right);
         if(temp == Impact.STOP) {
             return Impact.STOP;

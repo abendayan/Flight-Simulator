@@ -18,7 +18,7 @@ public class ObjectTextured extends Object {
     int object;
 
     float[] scale;
-    float[] rotate;
+    public float[] rotate;
     String file;
 
     public ObjectTextured(float[] translate, float[] scale, float[] rotate, String file,
