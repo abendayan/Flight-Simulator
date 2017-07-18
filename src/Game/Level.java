@@ -11,6 +11,7 @@ import Elements.ObjectTextured;
 import Elements.Walls.*;
 
 import javax.media.opengl.GL2;
+import javax.swing.text.Position;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
@@ -61,12 +62,12 @@ public class Level extends Object {
     }
 
     void addBall(Ball newBall, GL2 gl) {
-        balls.add(newBall);
         newBall.makeObject(gl);
+        balls.add(newBall);
     }
 
     void shootBall(GL2 gl, Point position){
-        float[] from = new float[]{20.0f, 0.0f, 120.0f};
+        float[] from = new float[]{20.0f, 2.0f, 120.0f};
         float[] to = new float[] {(float)position.x, (float)position.y, (float) position.z};
         Ball ball = new Ball(from, to, gl);
         addBall(ball, gl);
@@ -193,7 +194,7 @@ public class Level extends Object {
         }
 
         for(Ball ball : balls) {
-            ball.makeObject(gl);
+            ball.display(gl);
         }
     }
 
@@ -203,14 +204,12 @@ public class Level extends Object {
             return Impact.STOP;
         }
         temp = objectCollision.impactCollision(back);
-        if(temp == Impact.CONTINUE) {
-            // TODO something with the floor
-//            temp = objectCollision.impactCollision(floor);
-        }
         if(temp == Impact.STOP) {
             return Impact.STOP;
         }
-        temp = objectCollision.impactCollision(ceiling);
+        if(temp == Impact.CONTINUE) {
+            temp = objectCollision.impactCollision(ceiling);
+        }
         if(temp == Impact.STOP) {
             return Impact.STOP;
         }
@@ -241,12 +240,32 @@ public class Level extends Object {
         return temp;
     }
 
-    public void collisionBalls() {
+    void collisionBalls(Point position) {
         for(Ball ball : balls) {
             Impact impactBall = collisionDetection(ball.collisionModel);
+            Impact impactPosition = position.impactCollision(ball);
+            if(impactPosition == Impact.DEAD) {
+                position.dead = true;
+                break;
+            }
             if(impactBall != Impact.CONTINUE) {
                 ball.direction = new float[] { 0.0f, 0.0f, 0.0f };
             }
         }
+    }
+
+    void cleanUp() {
+        objects.clear();
+        balls.clear();
+        positionL.clear();
+        lightAmbient.clear();
+        lightDiffuse.clear();
+        lightSpecular.clear();
+        front = null;
+        back = null;
+        left = null;
+        right = null;
+        floor = null;
+        ceiling = null;
     }
 }

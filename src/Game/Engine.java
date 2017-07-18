@@ -3,9 +3,7 @@ package Game;
 import Collision.Impact;
 import Collision.Point;
 import Collision.Type;
-import Elements.Object;
 import Elements.ObjectTextured;
-import Elements.Walls.*;
 import Utilities.Coordinate;
 import com.jogamp.newt.Window;
 import com.jogamp.newt.event.KeyEvent;
@@ -15,14 +13,12 @@ import com.jogamp.opengl.util.awt.TextRenderer;
 
 import javax.media.opengl.*;
 import javax.media.opengl.glu.GLU;
-
 import java.awt.*;
 import java.util.ArrayList;
 
 import static java.lang.System.exit;
 import static javax.media.opengl.GL.GL_DEPTH_BUFFER_BIT;
 import static javax.media.opengl.GL.GL_TEXTURE_2D;
-import static javax.media.opengl.GL2GL3.GL_QUADS;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.*;
 
 /**
@@ -47,6 +43,7 @@ public class Engine implements GLEventListener, KeyListener {
     private long lastTime;
     private long startGame;
     private long currentTime;
+    private float movingPlane = 0.005f;
     private float framesPerSecond;
     private Integer currentLevel;
     private ArrayList<Level> levels;
@@ -62,16 +59,17 @@ public class Engine implements GLEventListener, KeyListener {
     @Override
     public void keyPressed(KeyEvent keyEvent) {
         int key = keyEvent.getKeyCode();
-        Point temp = new Point((float)(position.x + coordinate.Z.x), (float)(position.y + coordinate.Z.y),
-                (float)(position.z + coordinate.Z.z));
+        Point temp = new Point((float)(position.x), (float)(position.y), (float)(position.z));
         switch(key) {
             case KeyEvent.VK_ESCAPE:
                 exit(1);
                 break;
             case KeyEvent.VK_W: // forward
+                movingPlane += 0.005f;
                 temp.addScale(coordinate.Z, steep);
                 break;
             case KeyEvent.VK_S: // backward
+                movingPlane -= 0.005f;
                 temp.removeScale(coordinate.Z, steep);
                 break;
             case KeyEvent.VK_D: // right
@@ -116,22 +114,24 @@ public class Engine implements GLEventListener, KeyListener {
                 }
                 break;
         }
-        // TODO calculate when a frame pass the collision point
         Impact impact = levels.get(currentLevel).collisionDetection(temp);
-        // TODO change the direction when there is collision
         impactPlane(impact, temp);
     }
 
     private void impactPlane(Impact impact, Point point) {
+        if(position.y < 3.0f && impact != Impact.EXIT) {
+            impact = Impact.DEAD;
+        }
         switch(impact) {
             case CONTINUE:
                 if(position.y > 0.5f) {
-                    position.x = point.x - coordinate.Z.x;
-                    position.y = point.y - coordinate.Z.y;
-                    position.z = point.z - coordinate.Z.z;
+                    position.x = point.x;
+                    position.y = point.y;
+                    position.z = point.z;
                 }
                 break;
             case EXIT:
+                movingPlane = 0.005f;
                 // TODO test the angle, if not angle correct => dead
                 if(!win) {
                     win = true;
@@ -141,6 +141,7 @@ public class Engine implements GLEventListener, KeyListener {
                 }
                 break;
             case DEAD:
+                movingPlane = 0.005f;
                 position = new Point(5.0f, 10.0f, 5.0f);
                 coordinate = new Coordinate();
                 dead = true;
@@ -149,9 +150,8 @@ public class Engine implements GLEventListener, KeyListener {
     }
 
     private void movePlane() {
-        Point temp = new Point((float)(position.x + coordinate.Z.x), (float)(position.y + coordinate.Z.y),
-                (float)(position.z + coordinate.Z.z));
-        temp.addScale(coordinate.Z, 0.005f);
+        Point temp = new Point((float)(position.x), (float)(position.y), (float)(position.z));
+        temp.addScale(coordinate.Z, movingPlane);
         Impact impact = levels.get(currentLevel).collisionDetection(temp);
         impactPlane(impact, temp);
     }
@@ -254,7 +254,6 @@ public class Engine implements GLEventListener, KeyListener {
                 new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
 
         actualLevel.defNumberBuilding(150, gl);
-        // TODO add an enemy
         ObjectTextured boatThirdLevel = new ObjectTextured(new float[] {20.0f, 1.0f, 120.0f}, new float[] {2.0f, 2.0f, 2.0f},
                 new float[] {-90.0f, 1.0f, 0.0f, 1.0f}, "ShipMoscow.obj", Type.BOX);
         boatThirdLevel.defineImpact(Impact.DEAD);
@@ -269,7 +268,7 @@ public class Engine implements GLEventListener, KeyListener {
         currentTime = 0;
         fpsText = new TextRenderer( new Font("Arial", Font.BOLD, 10) );
         chronoText = new TextRenderer( new Font("Arial", Font.BOLD, 20) );
-        winningScreen = new TextRenderer( new Font("Arial", Font.BOLD, 60) );
+        winningScreen = new TextRenderer( new Font("Arial", Font.BOLD, 40) );
         fpsText.setSmoothing(true);
         framesPerSecond = 0;
         previousTimestamp = System.currentTimeMillis();
@@ -284,7 +283,6 @@ public class Engine implements GLEventListener, KeyListener {
 
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
-
     }
 
     @Override
@@ -293,16 +291,13 @@ public class Engine implements GLEventListener, KeyListener {
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear the depth buffer and the color buffer
         gl.glLoadIdentity(); //init the matrix
         if(win) {
-            winningScreen.beginRendering(width, height);
-            winningScreen.setColor(Color.WHITE);
-            // TODO something more pretty
             if(levels.size() <= currentLevel) {
-                winningScreen.draw("Won the game! Congrass!", 40, 40 );
+                drawText("Won the game! Congrats!", Color.WHITE);
             }
             else {
-                winningScreen.draw("Won the level!\n Press space to continue!", 40, height -40 );
+                levels.get(currentLevel - 1).cleanUp();
+                drawText("Won the level!\n Press space to continue!", Color.WHITE);
             }
-            winningScreen.endRendering();
         }
         else if(!dead){
 
@@ -320,7 +315,10 @@ public class Engine implements GLEventListener, KeyListener {
             levels.get(currentLevel).display(gl);
 
             if(currentLevel > 1) {
-                levels.get(currentLevel).collisionBalls();
+                levels.get(currentLevel).collisionBalls(position);
+                if(position.dead) {
+                    dead = true;
+                }
             }
 
             currentTime =  System.currentTimeMillis();
@@ -337,13 +335,18 @@ public class Engine implements GLEventListener, KeyListener {
             chronoText.endRendering();
         }
         else {
-            winningScreen.beginRendering(width, height);
-            winningScreen.setColor(Color.RED);
-            // TODO something more pretty
-            winningScreen.draw("Lost! Press space to try again", 40, height -40 );
-            winningScreen.endRendering();
+
+            drawText("Lost! Press space to try again", Color.red);
         }
         gl.glFlush();
+    }
+
+    private void drawText(String text, Color color) {
+        winningScreen.beginRendering(width, height);
+        winningScreen.setColor(color);
+        // TODO something more pretty
+        winningScreen.draw(text, 40, height/2 );
+        winningScreen.endRendering();
     }
 
     @Override

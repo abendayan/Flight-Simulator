@@ -19,6 +19,7 @@ public class Ball extends Object  {
     public Ball(float[] start, float[] plane, GL2 gl) {
         translate = start;
         impact = Impact.DEAD;
+        collisionType = Type.SPHERE;
         calculateStep(start, plane);
         collisionType = Type.SPHERE;
         vertices = new ArrayList<>();
@@ -26,8 +27,14 @@ public class Ball extends Object  {
         collisionModel = new BoundingSphere(vertices, translate, new float[]{1.0f, 1.0f, 1.0f}, new float[]{0.0f, 0.0f, 0.0f, 0.0f});
     }
 
-    void calculateStep(float[] start, float[] plane) {
-        // TODO calculate the steps
+    private void calculateStep(float[] start, float[] plane) {
+        direction = new float[] { plane[0] - start[0], plane[1] - start[1], plane[2] - start[2] };
+        float norm = direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2];
+        norm = (float)Math.sqrt((double)norm);
+        norm *= 20.0f;
+        direction[0] /= norm;
+        direction[1] /= norm;
+        direction[2] /= norm;
     }
 
     @Override
@@ -84,6 +91,7 @@ public class Ball extends Object  {
     }
 
     private void moveBall() {
+        collisionModel.center = new Vec3d(translate[0], translate[1], translate[2]);
         translate[0] += direction[0];
         translate[1] += direction[1];
         translate[2] += direction[2];

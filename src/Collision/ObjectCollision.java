@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public abstract class ObjectCollision extends Vec3d {
     CollisionDetection collisionDetection = new CollisionDetection();
-    Vec3d center;
+    public Vec3d center;
     double R;
     ArrayList<Vec3d> vertices;
     Vec3d Bmin;

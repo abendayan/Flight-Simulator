@@ -6,11 +6,13 @@ import Elements.Object;
  * 336141056
  */
 public class Point extends ObjectCollision {
+    public boolean dead;
 
     public Point(float a, float b, float c) {
         x = a;
         y = b;
         z = c;
+        dead = false;
     }
 
     public void addScale(Point vector, float scale) {
@@ -50,7 +52,6 @@ public class Point extends ObjectCollision {
 
     private Impact impactOfCollision(Object object) {
         if(object.impact == Impact.EXIT) {
-            // TODO calculate angle
             return Impact.EXIT;
         }
         return object.impact;
