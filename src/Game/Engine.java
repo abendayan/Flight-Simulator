@@ -4,12 +4,14 @@ import Collision.Impact;
 import Collision.Point;
 import Collision.Type;
 import Elements.ObjectTextured;
+import State.State;
 import Utilities.Coordinate;
 import com.jogamp.newt.Window;
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.KeyListener;
 import com.jogamp.newt.event.awt.AWTKeyAdapter;
 import com.jogamp.opengl.util.awt.TextRenderer;
+import com.sun.javafx.geom.Vec3d;
 
 import javax.media.opengl.*;
 import javax.media.opengl.glu.GLU;
@@ -25,7 +27,7 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.*;
  * Adele Bendayan
  * 336141056
  */
-public class Engine implements GLEventListener, KeyListener {
+public class Engine extends State {
     private static GLU glu; //static object GLU that will be init at the init() method
 
     private Point position;
@@ -132,8 +134,7 @@ public class Engine implements GLEventListener, KeyListener {
                 break;
             case EXIT:
                 movingPlane = 0.005f;
-                // TODO test the angle, if not angle correct => dead
-                if(!win) {
+                if(!win ) {
                     win = true;
                     currentLevel++;
                     position = new Point(5.0f, 10.0f, 5.0f);
@@ -163,6 +164,7 @@ public class Engine implements GLEventListener, KeyListener {
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
+        System.out.println("init");
         levels = new ArrayList<>();
         width = 800;
         height = 640;
@@ -199,14 +201,14 @@ public class Engine implements GLEventListener, KeyListener {
         actualLevel.defineTextureRight("sky.jpg", 1.0f);
         actualLevel.defineTextureLeft("sky.jpg", 1.0f);
         actualLevel.defineTextureCeiling("sky.jpg", 1.0f);
-        actualLevel.defineTextureFloor("sea.jpg", 6.0f);
+        actualLevel.defineTextureFloor("macadam.jpg", 6.0f);
         actualLevel.activateLight(new float[] {5.0f, 2.0f, 5.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
                 new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
         actualLevel.activateLight(new float[] {9.0f, 0.0f, 9.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
                 new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
 
         actualLevel.defNumberBuilding(80, gl);
-        actualLevel.createExit(100.0f);
+        actualLevel.createExit(130.0f);
 
         actualLevel.makeObject(gl);
         levels.add(actualLevel);
@@ -221,20 +223,16 @@ public class Engine implements GLEventListener, KeyListener {
         actualLevel.defineTextureRight("sky.jpg", 1.0f);
         actualLevel.defineTextureLeft("sky.jpg", 1.0f);
         actualLevel.defineTextureCeiling("sky.jpg", 1.0f);
-        actualLevel.defineTextureFloor("sea.jpg", 6.0f);
+        actualLevel.defineTextureFloor("macadam.jpg", 6.0f);
         actualLevel.activateLight(new float[] {5.0f, 2.0f, 5.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
                 new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
         actualLevel.activateLight(new float[] {9.0f, 0.0f, 9.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
                 new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
 
-        actualLevel.defNumberBuilding(20, gl);
+        actualLevel.defNumberBuilding(80, gl);
         actualLevel.createExit(120.0f);
 
-        ObjectTextured boat = new ObjectTextured(new float[] {120.0f, 1.0f, 120.0f}, new float[] {5.0f, 5.0f, 5.0f},
-                new float[] {-90.0f, 1.0f, 0.0f, 0.0f}, "ShipMoscow.obj", Type.BOX);
-        boat.defineImpact(Impact.DEAD);
-        actualLevel.addObject(boat);
-        actualLevel.makeObject(gl);
+//        actualLevel.makeObject(gl);
         levels.add(actualLevel);
 
 
@@ -247,19 +245,19 @@ public class Engine implements GLEventListener, KeyListener {
         actualLevel.defineTextureRight("sky.jpg", 1.0f);
         actualLevel.defineTextureLeft("sky.jpg", 1.0f);
         actualLevel.defineTextureCeiling("sky.jpg", 1.0f);
-        actualLevel.defineTextureFloor("sea.jpg", 6.0f);
+        actualLevel.defineTextureFloor("macadam.jpg", 6.0f);
         actualLevel.activateLight(new float[] {5.0f, 2.0f, 5.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
                 new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
         actualLevel.activateLight(new float[] {9.0f, 0.0f, 9.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
                 new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
 
         actualLevel.defNumberBuilding(150, gl);
-        ObjectTextured boatThirdLevel = new ObjectTextured(new float[] {20.0f, 1.0f, 120.0f}, new float[] {2.0f, 2.0f, 2.0f},
-                new float[] {-90.0f, 1.0f, 0.0f, 1.0f}, "ShipMoscow.obj", Type.BOX);
-        boatThirdLevel.defineImpact(Impact.DEAD);
-        actualLevel.addObject(boatThirdLevel);
+//        ObjectTextured boatThirdLevel = new ObjectTextured(new float[] {20.0f, 1.0f, 120.0f}, new float[] {2.0f, 2.0f, 2.0f},
+//                new float[] {-90.0f, 1.0f, 0.0f, 1.0f}, "ShipMoscow.obj", Type.BOX);
+//        boatThirdLevel.defineImpact(Impact.DEAD);
+//        actualLevel.addObject(boatThirdLevel);
         actualLevel.createExit(90.0f);
-        actualLevel.makeObject(gl);
+//        actualLevel.makeObject(gl);
         levels.add(actualLevel);
 
         currentLevel = 0;
@@ -295,8 +293,9 @@ public class Engine implements GLEventListener, KeyListener {
                 drawText("Won the game! Congrats!", Color.WHITE);
             }
             else {
-                levels.get(currentLevel - 1).cleanUp();
                 drawText("Won the level!\n Press space to continue!", Color.WHITE);
+                levels.get(currentLevel - 1).cleanUp();
+                levels.get(currentLevel).makeObject(gl);
             }
         }
         else if(!dead){
@@ -314,7 +313,7 @@ public class Engine implements GLEventListener, KeyListener {
             gl.glEnable(GL_TEXTURE_2D);
             levels.get(currentLevel).display(gl);
 
-            if(currentLevel > 1) {
+            if(currentLevel > 0) {
                 levels.get(currentLevel).collisionBalls(position);
                 if(position.dead) {
                     dead = true;
@@ -324,7 +323,7 @@ public class Engine implements GLEventListener, KeyListener {
             currentTime =  System.currentTimeMillis();
             if( currentTime - lastTime > 3000 ) {
                 lastTime = currentTime;
-                if(currentLevel > 1) {
+                if(currentLevel > 0) {
                     levels.get(currentLevel).shootBall(gl, position);
                 }
             }

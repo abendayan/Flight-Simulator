@@ -1,5 +1,7 @@
 
 import Game.Engine;
+import State.MenuState;
+import State.StateManager;
 import com.jogamp.opengl.util.Animator;
 
 import javax.media.opengl.awt.GLCanvas;
@@ -31,7 +33,12 @@ public class Main {
         GLCanvas canvas = new GLCanvas(); //create a GLCanvas
         animator.add(canvas);
         final Engine gameEngine = new Engine();
-        canvas.addGLEventListener(gameEngine);	//add the bounce as an event listener for GLCanvas events
+        StateManager stateManager = new StateManager();
+        final MenuState menu = new MenuState(stateManager);
+        stateManager.firstState(menu);
+        stateManager.setGameState(gameEngine);
+        stateManager.setCanvas(canvas);
+        canvas.addGLEventListener(menu);
 
         frame.add(canvas, java.awt.BorderLayout.CENTER);	//add the canvas to the frame
         frame.validate();

@@ -142,11 +142,11 @@ public class Building extends Object {
         // Top
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex3f(0.0f, 0.0f, 1.0f);
-        gl.glTexCoord2f(1.0f, 0.0f);
+        gl.glTexCoord2f(10.0f, 0.0f);
         gl.glVertex3f(1.0f, 0.0f, 1.0f);
-        gl.glTexCoord2f(1.0f, 1.0f);
+        gl.glTexCoord2f(10.0f, 10.0f);
         gl.glVertex3f(1.0f, 1.0f, 1.0f);
-        gl.glTexCoord2f(0.0f, 1.0f);
+        gl.glTexCoord2f(0.0f, 10.0f);
         gl.glVertex3f(0.0f, 1.0f, 1.0f);
 
         gl.glEnd();
