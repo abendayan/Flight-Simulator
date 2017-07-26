@@ -115,7 +115,7 @@ public class Level extends Object {
     void createExit(float position) {
         WallFloor exit = new WallFloor(position, position+20.0f, 1.0f, 1.0f,
                 position+20.0f, position+50.0f);
-        exit.defineTexture("green.png", 1.0f);
+        exit.defineTexture("runway.png", 1.0f);
         exit.defineImpact(Impact.EXIT);
         addObject(exit);
     }
@@ -198,6 +198,11 @@ public class Level extends Object {
         }
     }
 
+    /**
+     * collisionDetection detect if the user got a collision with an object
+     * @param objectCollision the object to test if there is collision
+     * @return the type of the collision
+     */
     Impact collisionDetection(ObjectCollision objectCollision) {
         Impact temp = objectCollision.impactCollision(front);
         if(temp == Impact.STOP) {
@@ -207,9 +212,7 @@ public class Level extends Object {
         if(temp == Impact.STOP) {
             return Impact.STOP;
         }
-        if(temp == Impact.CONTINUE) {
-            temp = objectCollision.impactCollision(ceiling);
-        }
+        temp = objectCollision.impactCollision(ceiling);
         if(temp == Impact.STOP) {
             return Impact.STOP;
         }
@@ -222,7 +225,6 @@ public class Level extends Object {
         if(temp == Impact.STOP) {
             return Impact.STOP;
         }
-        //temp = objectCollision.impactCollision(floor);
 
         for(Object object : objects) {
             if(object.exist && !object.holding) {
@@ -241,17 +243,20 @@ public class Level extends Object {
     }
 
     void collisionBalls(Point position) {
+        ArrayList<Ball> toDelete = new ArrayList<>();
         for(Ball ball : balls) {
             Impact impactBall = collisionDetection(ball.collisionModel);
             Impact impactPosition = position.impactCollision(ball);
-            if(impactPosition == Impact.DEAD) {
-                position.dead = true;
+            if(impactPosition == Impact.HURT) {
+                position.life -= 5;
+                toDelete.add(ball);
                 break;
             }
             if(impactBall != Impact.CONTINUE) {
-                ball.direction = new float[] { 0.0f, 0.0f, 0.0f };
+                toDelete.add(ball);
             }
         }
+        balls.removeAll(toDelete);
     }
 
     void cleanUp() {

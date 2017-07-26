@@ -9,9 +9,18 @@ import java.util.ArrayList;
  * Adele Bendayan
  * 336141056
  */
-public class CollisionDetection {
+class CollisionDetection {
+    /**
+     * pointPolygon
+     * @param point
+     * @param vertices
+     * @return boolean
+     */
     boolean pointPolygon(Vec3d point, ArrayList<Vec3d> vertices) {
-        ArrayList<Vec3d> copy = new ArrayList<>(vertices);
+        ArrayList<Vec3d> copy = new ArrayList<>();
+        for(Vec3d vertice : vertices) {
+            copy.add(vertice);
+        }
         copy.add(vertices.get(0));
         double angle = 0;
         for(int i = 0; i < copy.size()-1; i++) {

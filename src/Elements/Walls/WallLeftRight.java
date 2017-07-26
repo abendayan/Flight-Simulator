@@ -5,6 +5,8 @@ import com.sun.javafx.geom.Vec3d;
 
 import javax.media.opengl.GL2;
 
+import java.util.ArrayList;
+
 import static javax.media.opengl.GL.GL_TEXTURE_2D;
 
 /**
@@ -37,7 +39,7 @@ public class WallLeftRight extends Wall {
         gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
 
         gl.glBegin(GL2.GL_QUADS);
-
+        vertices = new ArrayList<>();
         gl.glTexCoord2f(0.0f, 0.0f);
         vertices.add(new Vec3d(X, Ymax, Zmin));
         gl.glVertex3f(X, Ymax, Zmin);

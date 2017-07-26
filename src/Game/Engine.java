@@ -27,6 +27,10 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.*;
  * Adele Bendayan
  * 336141056
  */
+
+/**
+ * Class for the game state
+ */
 public class Engine extends State {
     private static GLU glu; //static object GLU that will be init at the init() method
 
@@ -40,19 +44,23 @@ public class Engine extends State {
     private int height;
     private boolean win;
     private boolean dead;
+    private boolean winAll;
 
     private long previousTimestamp;
     private long lastTime;
     private long startGame;
+    private long endGame;
     private long currentTime;
     private float movingPlane = 0.005f;
     private float framesPerSecond;
     private Integer currentLevel;
     private ArrayList<Level> levels;
 
-    private TextRenderer fpsText;
+    private TextRenderer lifeText;
     private TextRenderer chronoText;
     private TextRenderer winningScreen;
+
+    private Integer life;
 
     /*
      * Gestion of keyboard events
@@ -106,7 +114,7 @@ public class Engine extends State {
                 break;
             case KeyEvent.VK_SPACE:
                 if(win) {
-                    if(levels.size() <= currentLevel) {
+                    if(winAll) {
                         exit(1);
                     }
                     win = false;
@@ -120,6 +128,11 @@ public class Engine extends State {
         impactPlane(impact, temp);
     }
 
+    /**
+     * impactPlane: impact the plane accordingly
+     * @param impact the impact
+     * @param point the new position
+     */
     private void impactPlane(Impact impact, Point point) {
         if(position.y < 3.0f && impact != Impact.EXIT) {
             impact = Impact.DEAD;
@@ -136,20 +149,35 @@ public class Engine extends State {
                 movingPlane = 0.005f;
                 if(!win ) {
                     win = true;
-                    currentLevel++;
+                    if(currentLevel + 1 < levels.size()) {
+                        currentLevel++;
+                    }
+                    else {
+                        endGame = System.currentTimeMillis();
+                        winAll = true;
+                    }
                     position = new Point(5.0f, 10.0f, 5.0f);
                     coordinate = new Coordinate();
                 }
                 break;
+            case HURT:
+                life -= 5;
+                position.life = life;
+                if(life <= 0) {
+                    break;
+                }
             case DEAD:
                 movingPlane = 0.005f;
-                position = new Point(5.0f, 10.0f, 5.0f);
+                position = new Point(8.0f, 10.0f, 8.0f);
                 coordinate = new Coordinate();
                 dead = true;
                 break;
         }
     }
 
+    /**
+     * movePlane: move the plane automatically
+     */
     private void movePlane() {
         Point temp = new Point((float)(position.x), (float)(position.y), (float)(position.z));
         temp.addScale(coordinate.Z, movingPlane);
@@ -164,11 +192,12 @@ public class Engine extends State {
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
-        System.out.println("init");
+        life = 100;
         levels = new ArrayList<>();
         width = 800;
         height = 640;
         win = false;
+        winAll = false;
 
         if (glAutoDrawable instanceof Window) {
             Window window = (Window) glAutoDrawable;
@@ -195,82 +224,55 @@ public class Engine extends State {
         ////////////////////////
         // DEFINE FIRST LEVEL //
         ////////////////////////
-        Level actualLevel = new Level(0.0f, 200.0f, 0.0f,200.0f, 0.0f, 200.0f);
-        actualLevel.defineTextureFront("sky.jpg", 1.0f);
-        actualLevel.defineTextureBack("sky.jpg", 1.0f);
-        actualLevel.defineTextureRight("sky.jpg", 1.0f);
-        actualLevel.defineTextureLeft("sky.jpg", 1.0f);
-        actualLevel.defineTextureCeiling("sky.jpg", 1.0f);
-        actualLevel.defineTextureFloor("macadam.jpg", 6.0f);
-        actualLevel.activateLight(new float[] {5.0f, 2.0f, 5.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
-                new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
-        actualLevel.activateLight(new float[] {9.0f, 0.0f, 9.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
-                new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
-
-        actualLevel.defNumberBuilding(80, gl);
-        actualLevel.createExit(130.0f);
-
-        actualLevel.makeObject(gl);
-        levels.add(actualLevel);
-
+        defineLevel(80, 130.0f, gl);
+        levels.get(0).makeObject(gl);
 
         //////////////////////////
         /// DEFINE SECOND LEVEL //
         //////////////////////////
-        actualLevel = new Level(0.0f, 200.0f, 0.0f,200.0f, 0.0f, 200.0f);
-        actualLevel.defineTextureFront("sky.jpg", 1.0f);
-        actualLevel.defineTextureBack("sky.jpg", 1.0f);
-        actualLevel.defineTextureRight("sky.jpg", 1.0f);
-        actualLevel.defineTextureLeft("sky.jpg", 1.0f);
-        actualLevel.defineTextureCeiling("sky.jpg", 1.0f);
-        actualLevel.defineTextureFloor("macadam.jpg", 6.0f);
-        actualLevel.activateLight(new float[] {5.0f, 2.0f, 5.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
-                new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
-        actualLevel.activateLight(new float[] {9.0f, 0.0f, 9.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
-                new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
-
-        actualLevel.defNumberBuilding(80, gl);
-        actualLevel.createExit(120.0f);
-
-//        actualLevel.makeObject(gl);
-        levels.add(actualLevel);
+        defineLevel(80, 120.0f, gl);
 
 
         /////////////////////////
         /// DEFINE THIRD LEVEL //
         /////////////////////////
-        actualLevel = new Level(0.0f, 200.0f, 0.0f,200.0f, 0.0f, 200.0f);
-        actualLevel.defineTextureFront("sky.jpg", 1.0f);
-        actualLevel.defineTextureBack("sky.jpg", 1.0f);
-        actualLevel.defineTextureRight("sky.jpg", 1.0f);
-        actualLevel.defineTextureLeft("sky.jpg", 1.0f);
-        actualLevel.defineTextureCeiling("sky.jpg", 1.0f);
-        actualLevel.defineTextureFloor("macadam.jpg", 6.0f);
-        actualLevel.activateLight(new float[] {5.0f, 2.0f, 5.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
-                new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
-        actualLevel.activateLight(new float[] {9.0f, 0.0f, 9.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
-                new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
-
-        actualLevel.defNumberBuilding(150, gl);
-//        ObjectTextured boatThirdLevel = new ObjectTextured(new float[] {20.0f, 1.0f, 120.0f}, new float[] {2.0f, 2.0f, 2.0f},
-//                new float[] {-90.0f, 1.0f, 0.0f, 1.0f}, "ShipMoscow.obj", Type.BOX);
-//        boatThirdLevel.defineImpact(Impact.DEAD);
-//        actualLevel.addObject(boatThirdLevel);
-        actualLevel.createExit(90.0f);
-//        actualLevel.makeObject(gl);
-        levels.add(actualLevel);
+        defineLevel(150, 90.0f, gl);
 
         currentLevel = 0;
         lastTime = System.currentTimeMillis();
         startGame = System.currentTimeMillis();
         currentTime = 0;
-        fpsText = new TextRenderer( new Font("Arial", Font.BOLD, 10) );
+        lifeText = new TextRenderer( new Font("Arial", Font.BOLD, 20) );
         chronoText = new TextRenderer( new Font("Arial", Font.BOLD, 20) );
         winningScreen = new TextRenderer( new Font("Arial", Font.BOLD, 40) );
-        fpsText.setSmoothing(true);
         framesPerSecond = 0;
         previousTimestamp = System.currentTimeMillis();
         fps = 0.0f;
+    }
+
+    /**
+     * defineLevel: create the elements necessary for a level
+     * @param numberBulding number of buildings inside of the level
+     * @param placeExit the place of the exit
+     * @param gl opengl object to create the objects
+     */
+    private void defineLevel(int numberBulding, float placeExit, GL2 gl) {
+        Level level = new Level(0.0f, 200.0f, 0.0f,200.0f, 0.0f, 200.0f);
+        level.defineTextureFront("sky.jpg", 1.0f);
+        level.defineTextureBack("sky.jpg", 1.0f);
+        level.defineTextureRight("sky.jpg", 1.0f);
+        level.defineTextureLeft("sky.jpg", 1.0f);
+        level.defineTextureCeiling("sky.jpg", 1.0f);
+        level.defineTextureFloor("macadam.jpg", 6.0f);
+        level.activateLight(new float[] {5.0f, 2.0f, 5.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
+                new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
+        level.activateLight(new float[] {9.0f, 0.0f, 9.0f}, new float[] { 0.05f, 0.05f, 0.05f, 1.0f },
+                new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
+
+        level.defNumberBuilding(numberBulding, gl);
+        level.createExit(placeExit);
+
+        levels.add(level);
     }
 
     private void define3D(GL2 gl) {
@@ -289,8 +291,8 @@ public class Engine extends State {
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear the depth buffer and the color buffer
         gl.glLoadIdentity(); //init the matrix
         if(win) {
-            if(levels.size() <= currentLevel) {
-                drawText("Won the game! Congrats!", Color.WHITE);
+            if(winAll) {
+                drawText("Won the game! In " + (float)(endGame - startGame)/1000 + "s", Color.WHITE);
             }
             else {
                 drawText("Won the level!\n Press space to continue!", Color.WHITE);
@@ -315,9 +317,7 @@ public class Engine extends State {
 
             if(currentLevel > 0) {
                 levels.get(currentLevel).collisionBalls(position);
-                if(position.dead) {
-                    dead = true;
-                }
+                life = position.life;
             }
 
             currentTime =  System.currentTimeMillis();
@@ -332,6 +332,16 @@ public class Engine extends State {
             chronoText.setColor(Color.WHITE);
             chronoText.draw((float)(System.currentTimeMillis() - startGame)/1000 + "s", width-120, height -40 );
             chronoText.endRendering();
+
+            lifeText.beginRendering(width, height);
+            if(life <= 50) {
+                lifeText.setColor(Color.RED);
+            }
+            else {
+                lifeText.setColor(Color.WHITE);
+            }
+            lifeText.draw("Life: " + life + "/100", 120, height -40);
+            lifeText.endRendering();
         }
         else {
 
@@ -343,7 +353,6 @@ public class Engine extends State {
     private void drawText(String text, Color color) {
         winningScreen.beginRendering(width, height);
         winningScreen.setColor(color);
-        // TODO something more pretty
         winningScreen.draw(text, 40, height/2 );
         winningScreen.endRendering();
     }

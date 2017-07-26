@@ -18,10 +18,9 @@ public class Ball extends Object  {
 
     public Ball(float[] start, float[] plane, GL2 gl) {
         translate = start;
-        impact = Impact.DEAD;
+        impact = Impact.HURT;
         collisionType = Type.SPHERE;
         calculateStep(start, plane);
-        collisionType = Type.SPHERE;
         vertices = new ArrayList<>();
         makeObject(gl);
         collisionModel = new BoundingSphere(vertices, translate, new float[]{1.0f, 1.0f, 1.0f}, new float[]{0.0f, 0.0f, 0.0f, 0.0f});

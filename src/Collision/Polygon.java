@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class Polygon extends ObjectCollision{
 
     public Polygon(ArrayList<Vec3d> vertices) {
-        this.vertices = new ArrayList<>(vertices);
+        this.vertices = vertices;
     }
 
 

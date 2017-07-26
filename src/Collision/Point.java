@@ -7,11 +7,13 @@ import Elements.Object;
  */
 public class Point extends ObjectCollision {
     public boolean dead;
+    public Integer life;
 
     public Point(float a, float b, float c) {
         x = a;
         y = b;
         z = c;
+        life = 100;
         dead = false;
     }
 
