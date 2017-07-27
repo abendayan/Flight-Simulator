@@ -7,6 +7,10 @@ import com.jogamp.opengl.math.VectorUtil;
  * Adele Bendayan
  * 336141056
  */
+
+/**
+ * Class for the coordinates
+ */
 public class Coordinate {
     public Point X;
     public Point Y;
@@ -18,6 +22,10 @@ public class Coordinate {
         Z = new Point(0, 0, 1);
     }
 
+    /**
+     * rotate around the z axis
+     * @param angle the angle
+     */
     public void rotateZ(float angle) {
         float[] tempx = new float[]{(float)X.x,(float) X.y,(float) X.z};
         float[] tempx2 = new float[]{(float)X.x,(float) X.y,(float) X.z};
@@ -36,6 +44,10 @@ public class Coordinate {
         Y = new Point(tempY2[0], tempY2[1], tempY2[2]);
     }
 
+    /**
+     * rotate around the x axis
+     * @param angle the angle
+     */
     public void rotateX(float angle) {
         float[] tempY = new float[]{(float)Y.x, (float)Y.y, (float)Y.z};
         float[] tempY2 = new float[]{(float)Y.x, (float)Y.y, (float)Y.z};
@@ -55,6 +67,10 @@ public class Coordinate {
         Z = new Point(tempZ2[0], tempZ2[1], tempZ2[2]);
     }
 
+    /**
+     * rotate around the y axis
+     * @param angle the angle
+     */
     public void rotateY(float angle) {
         float[] tempx = new float[]{(float)X.x,(float) X.y,(float) X.z};
         float[] tempx2 = new float[]{(float)X.x,(float) X.y,(float) X.z};
@@ -73,12 +89,16 @@ public class Coordinate {
         Z = new Point(tempZ2[0], tempZ2[1], tempZ2[2]);
     }
 
-    float SIN(float x)
+    /*
+     * sinus and cosinus
+     */
+
+    private float SIN(float x)
     {
         return (float)java.lang.Math.sin(x *3.14159/180);
     }
 
-    float COS(float x)
+    private float COS(float x)
     {
         return (float)java.lang.Math.cos(x *3.14159/180);
     }

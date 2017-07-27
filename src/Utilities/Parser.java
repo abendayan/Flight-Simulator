@@ -25,26 +25,34 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
  * Adele Bendayan
  * 336141056
  */
-public class Parser {
-    ArrayList<String> lines;
-    ArrayList<String> linesTexture;
-    ArrayList<ArrayList<Integer>> faces;
-    ArrayList<Vec3d> vertices;
-    ArrayList<Vec2d> texture;
-    ArrayList<Vec3d> verticesNormal;
-    Map<String, Texture> allTexture;
-    Map<String, float[]> allKa;
-    Map<String, float[]> allKd;
-    Map<String, float[]> allKs;
-    Map<String, float[]> allKe;
-    Map<String, float[]> allTf;
-    Map<String, Float> allNs;
-    Map<String, Float> allNi;
-    Map<String, Float> alld;
-    Map<String, Float> allTr;
-    Map<String, Float> allIllum;
-    int list;
 
+/**
+ * helper class to parse .obj and .mtl files
+ */
+public class Parser {
+    private ArrayList<String> lines;
+    private ArrayList<String> linesTexture;
+    private ArrayList<ArrayList<Integer>> faces;
+    private ArrayList<Vec3d> vertices;
+    private ArrayList<Vec2d> texture;
+    private ArrayList<Vec3d> verticesNormal;
+    private Map<String, Texture> allTexture;
+    private Map<String, float[]> allKa;
+    private Map<String, float[]> allKd;
+    private Map<String, float[]> allKs;
+    private Map<String, float[]> allKe;
+    private Map<String, float[]> allTf;
+    private Map<String, Float> allNs;
+    private Map<String, Float> allNi;
+    private Map<String, Float> alld;
+    private Map<String, Float> allTr;
+    private Map<String, Float> allIllum;
+    private int list;
+
+    /**
+     * Initialize the parser
+     * @param fileName the file to read from
+     */
     public Parser(String fileName) {
         Path file = Paths.get(fileName);
         try {
@@ -69,10 +77,19 @@ public class Parser {
         faces = new ArrayList<>();
     }
 
+    /**
+     * parse the file into an opengl list
+     * @param gl opengl object
+     * @return the list
+     */
     public int getList(GL2 gl) {
         parseEverything(gl);
         return list;
     }
+
+    /*
+     * getters
+     */
 
     public ArrayList<Vec3d> getVertices() {
         return  vertices;
@@ -82,11 +99,15 @@ public class Parser {
         return  verticesNormal;
     }
 
-    void parseTexture() {
+    /**
+     * helper function to parse .mtl file
+     */
+    private void parseTexture() {
         String key = "";
         String[] temp;
         String tempLine;
         for (String line : linesTexture) {
+            // according the the start of the line, file the lists
             if(line.startsWith("newmtl")) {
                 key = line.split("newmtl ")[1];
             }
@@ -161,8 +182,11 @@ public class Parser {
         }
     }
 
+    /**
+     * function to parse the file into an opengl list
+     * @param gl opengl object
+     */
     private void parseEverything(GL2 gl) {
-
         String[] temp;
         String tempLine;
         int verticeIndex;
@@ -235,7 +259,6 @@ public class Parser {
                 String image = line.split(" ")[1];
                 gl.glEnd();
                 gl.glPopMatrix();
-
                 gl.glPushMatrix();
                 gl.glMaterialfv(GL_FRONT,  GL2.GL_AMBIENT, allKa.get(image), 0);
                 gl.glMaterialfv(GL_FRONT,  GL2.GL_SPECULAR, allKs.get(image), 0);
@@ -249,7 +272,6 @@ public class Parser {
                 gl.glBegin(GL2.GL_QUADS);
             }
         }
-
 
         gl.glEnd();
         gl.glPopMatrix();

@@ -1,5 +1,5 @@
 
-import Game.Engine;
+import State.GameState;
 import State.MenuState;
 import State.StateManager;
 import com.jogamp.opengl.util.Animator;
@@ -32,11 +32,11 @@ public class Main {
 
         GLCanvas canvas = new GLCanvas(); //create a GLCanvas
         animator.add(canvas);
-        final Engine gameEngine = new Engine();
+        final GameState gameState = new GameState();
         StateManager stateManager = new StateManager();
         final MenuState menu = new MenuState(stateManager);
         stateManager.firstState(menu);
-        stateManager.setGameState(gameEngine);
+        stateManager.setGameState(gameState);
         stateManager.setCanvas(canvas);
         canvas.addGLEventListener(menu);
 

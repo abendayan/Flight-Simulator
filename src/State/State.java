@@ -8,5 +8,9 @@ import javax.media.opengl.GLEventListener;
  * Adele Bendayan
  * 336141056
  */
-public abstract class State implements KeyListener, GLEventListener {
+
+/**
+ * abstract class that extends keylistner & GLEventListener
+ */
+abstract class State implements KeyListener, GLEventListener {
 }

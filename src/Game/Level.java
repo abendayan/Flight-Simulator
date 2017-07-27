@@ -23,6 +23,10 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_POSITION;
  * Adele Bendayan
  * 336141056
  */
+
+/**
+ * Class to represent a level
+ */
 public class Level extends Object {
     private WallFront front;
     private WallBack back;
@@ -36,7 +40,6 @@ public class Level extends Object {
     public float Ymax;
     public float Zmin;
     public float Zmax;
-    private int numberBuildings;
     private ArrayList<float[]> positionL;
     private ArrayList<float[]> lightAmbient;
     private ArrayList<float[]> lightDiffuse;
@@ -45,7 +48,16 @@ public class Level extends Object {
     private ArrayList<Object> objects;
     private ArrayList<Ball> balls;
 
-    Level(float Xmin, float Xmax, float Ymin, float Ymax, float Zmin,
+    /**
+     * Constructor for the level
+     * @param Xmin minimum for x
+     * @param Xmax maximum for x
+     * @param Ymin minimum for y
+     * @param Ymax maximum for y
+     * @param Zmin minimum for z
+     * @param Zmax maximum for z
+     */
+    public Level(float Xmin, float Xmax, float Ymin, float Ymax, float Zmin,
           float Zmax) {
         this.Xmin = Xmin;
         this.Xmax = Xmax;
@@ -53,6 +65,7 @@ public class Level extends Object {
         this.Ymax = Ymax;
         this.Zmin = Zmin;
         this.Zmax = Zmax;
+        // initialize the lists
         balls = new ArrayList<>();
         objects = new ArrayList<>();
         positionL = new ArrayList<>();
@@ -61,27 +74,48 @@ public class Level extends Object {
         lightSpecular = new ArrayList<>();
     }
 
-    void addBall(Ball newBall, GL2 gl) {
+    /**
+     * add a ball
+     * @param newBall a ball to add
+     * @param gl opengl parameter
+     */
+    private void addBall(Ball newBall, GL2 gl) {
         newBall.makeObject(gl);
         balls.add(newBall);
     }
 
-    void shootBall(GL2 gl, Point position){
+    /**
+     * function to shoot a ball
+     * @param gl opengl
+     * @param position position of the plane
+     */
+    public void shootBall(GL2 gl, Point position){
         float[] from = new float[]{20.0f, 2.0f, 120.0f};
         float[] to = new float[] {(float)position.x, (float)position.y, (float) position.z};
         Ball ball = new Ball(from, to, gl);
         addBall(ball, gl);
     }
 
-    void activateLight(float[] positionL, float[] lightAmbient, float[] lightDiffuse, float[] lightSpecular) {
+    /**
+     * add the parameters for a light
+     * @param positionL position of the light
+     * @param lightAmbient parameter for ambient light
+     * @param lightDiffuse parameter for diffuse light
+     * @param lightSpecular parameter for specular light
+     */
+    public void activateLight(float[] positionL, float[] lightAmbient, float[] lightDiffuse, float[] lightSpecular) {
         this.positionL.add(positionL);
         this.lightAmbient.add(lightAmbient);
         this.lightDiffuse.add(lightDiffuse);
         this.lightSpecular.add(lightSpecular);
     }
 
-    void defNumberBuilding(int number, GL2 gl) {
-        numberBuildings = number;
+    /**
+     * Create the buildings
+     * @param numberBuildings the number of building
+     * @param gl opengl
+     */
+    public void defNumberBuilding(int numberBuildings, GL2 gl) {
         int j = 0;
         for(int i = 0; i < numberBuildings; i+=5) {
             addObject(new Building(new float[] {(15.0f + j*12.0f)*0.98f, 0.0f,
@@ -112,7 +146,11 @@ public class Level extends Object {
         }
     }
 
-    void createExit(float position) {
+    /**
+     * Create the exit
+     * @param position position of the exit
+     */
+    public void createExit(float position) {
         WallFloor exit = new WallFloor(position, position+20.0f, 1.0f, 1.0f,
                 position+20.0f, position+50.0f);
         exit.defineTexture("runway.png", 1.0f);
@@ -120,7 +158,11 @@ public class Level extends Object {
         addObject(exit);
     }
 
-    void lightUps(GL2 gl) {
+    /**
+     * activate the lights
+     * @param gl opengl
+     */
+    public void lightUps(GL2 gl) {
         for(int i = 0; i < positionL.size(); i++) {
             gl.glLightfv(GL_LIGHT0 + i, GL_POSITION, positionL.get(i), 0);
             gl.glLightfv(GL_LIGHT0 + i, GL2.GL_AMBIENT, lightAmbient.get(i), 0);
@@ -129,40 +171,51 @@ public class Level extends Object {
         }
     }
 
-    public void addObject(Object object) {
+    /**
+     * Add an object
+     * @param object the object to add
+     */
+    private void addObject(Object object) {
         objects.add(object);
     }
 
-    void defineTextureFront(String filename, float espaceTexture) {
+    /*
+     * define the textures for the walls
+     */
+    public void defineTextureFront(String filename, float espaceTexture) {
         front = new WallFront(Xmin, Xmax, Ymin, Ymax, Zmin, Zmax);
         front.defineTexture(filename, espaceTexture);
     }
 
-    void defineTextureFloor(String filename, float espaceTexture) {
+    public void defineTextureFloor(String filename, float espaceTexture) {
         floor = new WallFloor(Xmin, Xmax, Ymin, Ymax, Zmin, Zmax);
         floor.defineTexture(filename, espaceTexture);
     }
 
-    void defineTextureCeiling(String filename, float espaceTexture) {
+    public void defineTextureCeiling(String filename, float espaceTexture) {
         ceiling = new WallCeiling(Xmin, Xmax, Ymin, Ymax, Zmin, Zmax);
         ceiling.defineTexture(filename, espaceTexture);
     }
 
-    void defineTextureLeft(String filename, float espaceTexture) {
+    public void defineTextureLeft(String filename, float espaceTexture) {
         left = new WallLeft(Xmin, Xmax, Ymin, Ymax, Zmin, Zmax);
         left.defineTexture(filename, espaceTexture);
     }
 
-    void defineTextureRight(String filename, float espaceTexture) {
+    public void defineTextureRight(String filename, float espaceTexture) {
         right = new WallRight(Xmin, Xmax, Ymin, Ymax, Zmin, Zmax);
         right.defineTexture(filename, espaceTexture);
     }
 
-    void defineTextureBack(String filename, float espaceTexture) {
+    public void defineTextureBack(String filename, float espaceTexture) {
         back = new WallBack(Xmin, Xmax, Ymin, Ymax, Zmin, Zmax);
         back.defineTexture(filename, espaceTexture);
     }
 
+    /**
+     * make the objects
+     * @param gl opengl
+     */
     @Override
     public void makeObject(GL2 gl) {
         front.makeObject(gl);
@@ -179,6 +232,10 @@ public class Level extends Object {
         }
     }
 
+    /**
+     * display all of the objects in the level
+     * @param gl opengl
+     */
     @Override
     public void display(GL2 gl) {
         front.display(gl);
@@ -203,7 +260,7 @@ public class Level extends Object {
      * @param objectCollision the object to test if there is collision
      * @return the type of the collision
      */
-    Impact collisionDetection(ObjectCollision objectCollision) {
+    public Impact collisionDetection(ObjectCollision objectCollision) {
         Impact temp = objectCollision.impactCollision(front);
         if(temp == Impact.STOP) {
             return Impact.STOP;
@@ -242,12 +299,17 @@ public class Level extends Object {
         return temp;
     }
 
-    void collisionBalls(Point position) {
+    /**
+     * test the collision of the balls with the plane
+     * @param position
+     */
+    public void collisionBalls(Point position) {
         ArrayList<Ball> toDelete = new ArrayList<>();
         for(Ball ball : balls) {
-            Impact impactBall = collisionDetection(ball.collisionModel);
-            Impact impactPosition = position.impactCollision(ball);
+            Impact impactBall = collisionDetection(ball.collisionModel); // test the collision with the objects
+            Impact impactPosition = position.impactCollision(ball); // tests the collision with the plane
             if(impactPosition == Impact.HURT) {
+                // if we got hurt
                 position.life -= 5;
                 toDelete.add(ball);
                 break;
@@ -256,10 +318,14 @@ public class Level extends Object {
                 toDelete.add(ball);
             }
         }
+        // remove the balls that collided
         balls.removeAll(toDelete);
     }
 
-    void cleanUp() {
+    /**
+     * clear a level
+     */
+    public void cleanUp() {
         objects.clear();
         balls.clear();
         positionL.clear();

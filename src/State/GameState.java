@@ -1,9 +1,10 @@
-package Game;
+package State;
 
 import Collision.Impact;
 import Collision.Point;
 import Collision.Type;
 import Elements.ObjectTextured;
+import Game.Level;
 import State.State;
 import Utilities.Coordinate;
 import com.jogamp.newt.Window;
@@ -31,7 +32,7 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.*;
 /**
  * Class for the game state
  */
-public class Engine extends State {
+public class GameState extends State {
     private static GLU glu; //static object GLU that will be init at the init() method
 
     private Point position;
@@ -61,6 +62,23 @@ public class Engine extends State {
     private TextRenderer winningScreen;
 
     private Integer life;
+
+    /**
+     * Constructor: initial all of the variables that are not dependent on opengl
+     */
+    public GameState() {
+        life = 100;
+        levels = new ArrayList<>();
+        width = 800;
+        height = 640;
+        win = false;
+        winAll = false;
+        coordinate = new Coordinate();
+        position = new Point(5.0f, 10.0f, 5.0f);
+        lifeText = new TextRenderer( new Font("Arial", Font.BOLD, 20) );
+        chronoText = new TextRenderer( new Font("Arial", Font.BOLD, 20) );
+        winningScreen = new TextRenderer( new Font("Arial", Font.BOLD, 40) );
+    }
 
     /*
      * Gestion of keyboard events
@@ -190,15 +208,13 @@ public class Engine extends State {
 
     }
 
+
+    /**
+     * init: initialize all of the parameters dependent on opengl
+     * @param glAutoDrawable
+     */
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
-        life = 100;
-        levels = new ArrayList<>();
-        width = 800;
-        height = 640;
-        win = false;
-        winAll = false;
-
         if (glAutoDrawable instanceof Window) {
             Window window = (Window) glAutoDrawable;
             window.addKeyListener(this);
@@ -206,11 +222,10 @@ public class Engine extends State {
             java.awt.Component comp = (java.awt.Component) glAutoDrawable;
             new AWTKeyAdapter(this, glAutoDrawable).addTo(comp);
         }
-        coordinate = new Coordinate();
         GL2 gl = glAutoDrawable.getGL().getGL2(); // get the GL from the GLAutoDrawable
         gl.glDepthFunc(GL2.GL_LEQUAL);
         gl.glEnable(GL_TEXTURE_2D);
-        position = new Point(5.0f, 10.0f, 5.0f);
+
         gl.glEnable(GL2.GL_DEPTH_TEST); //enable depth buffer
         gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); //define the clear color to black
         gl.glClearDepth(1.0f);
@@ -242,9 +257,7 @@ public class Engine extends State {
         lastTime = System.currentTimeMillis();
         startGame = System.currentTimeMillis();
         currentTime = 0;
-        lifeText = new TextRenderer( new Font("Arial", Font.BOLD, 20) );
-        chronoText = new TextRenderer( new Font("Arial", Font.BOLD, 20) );
-        winningScreen = new TextRenderer( new Font("Arial", Font.BOLD, 40) );
+
         framesPerSecond = 0;
         previousTimestamp = System.currentTimeMillis();
         fps = 0.0f;
@@ -275,6 +288,10 @@ public class Engine extends State {
         levels.add(level);
     }
 
+    /**
+     * Define the matrix for 3d drawing
+     * @param gl opengl
+     */
     private void define3D(GL2 gl) {
         gl.glMatrixMode(GL2.GL_PROJECTION); //switch to projection matrix
         gl.glEnable(GL_NORMALIZE);
@@ -285,37 +302,45 @@ public class Engine extends State {
     public void dispose(GLAutoDrawable glAutoDrawable) {
     }
 
+    /**
+     * display: draw all frames the scene
+     * @param glAutoDrawable
+     */
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
         GL2 gl = glAutoDrawable.getGL().getGL2();//get the GL object
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear the depth buffer and the color buffer
         gl.glLoadIdentity(); //init the matrix
         if(win) {
+            // if we won
             if(winAll) {
+                // if we won the game
                 drawText("Won the game! In " + (float)(endGame - startGame)/1000 + "s", Color.WHITE);
             }
             else {
+                // if we won the level
                 drawText("Won the level!\n Press space to continue!", Color.WHITE);
                 levels.get(currentLevel - 1).cleanUp();
                 levels.get(currentLevel).makeObject(gl);
             }
         }
         else if(!dead){
-
+            // we havn't won and we are not dead
             steep = 3.9f /1.5f;
             angle = 12.4f /1.5f;
-            movePlane();
+            movePlane(); // move the plane
 
             glu.gluLookAt(position.x, position.y, position.z,
                     position.x + coordinate.Z.x, position.y + coordinate.Z.y, position.z + coordinate.Z.z,
                     coordinate.Y.x, coordinate.Y.y, coordinate.Y.z);
 
-            levels.get(currentLevel).lightUps(gl);
+            levels.get(currentLevel).lightUps(gl); // activate the lights
             //draw things using openGL
             gl.glEnable(GL_TEXTURE_2D);
-            levels.get(currentLevel).display(gl);
+            levels.get(currentLevel).display(gl); // display the level
 
             if(currentLevel > 0) {
+                // for all the levels except the first one, check the collision with the balls
                 levels.get(currentLevel).collisionBalls(position);
                 life = position.life;
             }
@@ -324,15 +349,22 @@ public class Engine extends State {
             if( currentTime - lastTime > 3000 ) {
                 lastTime = currentTime;
                 if(currentLevel > 0) {
+                    // every 3 seconds, shoot a new ball
                     levels.get(currentLevel).shootBall(gl, position);
                 }
             }
 
+            /*
+             * draw the texts
+            */
+
+            // for the chrono
             chronoText.beginRendering(width, height);
             chronoText.setColor(Color.WHITE);
             chronoText.draw((float)(System.currentTimeMillis() - startGame)/1000 + "s", width-120, height -40 );
             chronoText.endRendering();
 
+            // for the life
             lifeText.beginRendering(width, height);
             if(life <= 50) {
                 lifeText.setColor(Color.RED);
@@ -344,12 +376,17 @@ public class Engine extends State {
             lifeText.endRendering();
         }
         else {
-
+            // we are dead
             drawText("Lost! Press space to try again", Color.red);
         }
         gl.glFlush();
     }
 
+    /**
+     * function to write for the loosing or winning screen
+     * @param text the text to draw
+     * @param color the color of the text
+     */
     private void drawText(String text, Color color) {
         winningScreen.beginRendering(width, height);
         winningScreen.setColor(color);
