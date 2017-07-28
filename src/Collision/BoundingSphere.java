@@ -10,9 +10,13 @@ import java.util.ArrayList;
  * Adele Bendayan
  * 336141056
  */
+
+/**
+ * Class that represent a collision object of Bounding sphere type
+ */
 public class BoundingSphere extends ObjectCollision {
 
-    public BoundingSphere(ArrayList<Vec3d> vertices, float[] translate, float[] scale, float[] rotate) {
+    public BoundingSphere(ArrayList<Vec3d> vertices, float[] translate, float[] scale) {
         double x = 0, y = 0, z = 0;
         for(Vec3d vertice : vertices) {
             vertice.x *= scale[0];
@@ -40,6 +44,7 @@ public class BoundingSphere extends ObjectCollision {
         center.y += translate[1];
         center.z += translate[2];
     }
+
     @Override
     public Impact impactCollision(Object object) {
         return Impact.CONTINUE;

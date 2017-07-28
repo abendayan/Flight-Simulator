@@ -13,9 +13,13 @@ import static javax.media.opengl.GL.GL_TEXTURE_2D;
  * Adele Bendayan
  * 336141056
  */
+
+/**
+ * Represent or a left wall or a right wall
+ */
 public class WallLeftRight extends Wall {
-    boolean leftOrRight;
-    public WallLeftRight(float Xmin, float Xmax, float Ymin, float Ymax, float Zmin, float Zmax, boolean leftOrRight) {
+    private boolean leftOrRight;
+    WallLeftRight(float Xmin, float Xmax, float Ymin, float Ymax, float Zmin, float Zmax, boolean leftOrRight) {
         super(Xmin, Xmax, Ymin, Ymax, Zmin, Zmax);
         this.leftOrRight = leftOrRight;
     }

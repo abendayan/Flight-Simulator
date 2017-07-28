@@ -5,7 +5,6 @@ import Collision.BoundingSphere;
 import Collision.Type;
 import Collision.Impact;
 import Utilities.Parser;
-import com.sun.javafx.geom.Vec3d;
 
 import javax.media.opengl.GL2;
 import java.util.ArrayList;
@@ -14,26 +13,23 @@ import java.util.ArrayList;
  * Adele Bendayan
  * 336141056
  */
+
+/**
+ * Object created from a .obj file
+ */
 public class ObjectTextured extends Object {
-    int object;
 
-    float[] scale;
-    public float[] rotate;
-    String file;
+    private String file;
 
-    public ObjectTextured(float[] translate, float[] scale, float[] rotate, String file,
-                          Type collisionType) {
-        this.translate = translate;
-        this.scale = scale;
-        this.rotate = rotate;
-        this.file = file;
-        vertices = new ArrayList<>();
-        verticesNormal = new ArrayList<>();
-        this.collisionType = collisionType;
-        holding = false;
-    }
-
-
+    /**
+     * Constructor
+     * @param translate the position of the object
+     * @param scale the scale
+     * @param rotate the rotation to give
+     * @param file the file where is define the object
+     * @param collisionType the type of the collision
+     * @param impact the impact
+     */
     public ObjectTextured(float[] translate, float[] scale, float[] rotate, String file,
                           Type collisionType, Impact impact) {
         this.translate = translate;
@@ -44,39 +40,26 @@ public class ObjectTextured extends Object {
         verticesNormal = new ArrayList<>();
         this.collisionType = collisionType;
         this.impact = impact;
-        holding = false;
     }
 
+    /**
+     * make the object
+     * @param gl opengl parameter
+     */
     @Override
     public void makeObject(GL2 gl) {
         Parser parser = new Parser("texture/" + file);
-        object = parser.getList(gl);
+        object = parser.getList(gl); // get the list from the parser
         vertices = new ArrayList<>(parser.getVertices());
         verticesNormal = new ArrayList<>(parser.getNormal());
         switch (collisionType) {
+            // create the collision object according to the type of the collision
             case SPHERE:
-                collisionModel = new BoundingSphere(vertices, translate, scale, rotate);
+                collisionModel = new BoundingSphere(vertices, translate, scale);
                 break;
             case BOX:
                 collisionModel = new AABB(vertices, translate, scale, rotate);
                 break;
         }
-    }
-
-    @SuppressWarnings("Duplicates")
-    @Override
-    public void display(GL2 gl) {
-        gl.glPushMatrix();
-        gl.glTranslatef(translate[0], translate[1], translate[2]);
-        gl.glRotatef(rotate[0], rotate[1], rotate[2], rotate[3]);
-        gl.glScalef(scale[0], scale[1], scale[2]);
-        gl.glCallList(object);
-        gl.glPopMatrix();
-    }
-
-    @Override
-    public void destroy() {
-        System.out.println("destroy");
-        exist = false;
     }
 }

@@ -1,34 +1,37 @@
 package State;
 
-import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.awt.GLCanvas;
-import java.util.ArrayList;
 
 /**
  * Adele Bendayan
  * 336141056
  */
+
+/**
+ * State Manager: takes care of the interaction between states
+ */
 public class StateManager {
-    State currentState;
-    State gameState;
-    GLCanvas canvas;
-
-    public void firstState(State firstState) {
-        currentState = firstState;
-    }
-
+    private State gameState;
+    private GLCanvas canvas;
+    /**
+     * define the game state
+     * @param state the game state
+     */
     public void setGameState(State state) {
         gameState = state;
     }
 
+    /**
+     * @param canvas the canvas
+     */
     public void setCanvas(GLCanvas canvas) {
         this.canvas = canvas;
     }
 
-    public void goToGame(GLAutoDrawable glAutoDrawable) {
-        currentState = null;
-        currentState = gameState;
+    /**
+     * go to the game state
+     */
+    void goToGame() {
         canvas.addGLEventListener(gameState);
-//        currentState.display(glAutoDrawable);
     }
 }

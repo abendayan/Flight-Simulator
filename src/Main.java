@@ -35,7 +35,6 @@ public class Main {
         final GameState gameState = new GameState();
         StateManager stateManager = new StateManager();
         final MenuState menu = new MenuState(stateManager);
-        stateManager.firstState(menu);
         stateManager.setGameState(gameState);
         stateManager.setCanvas(canvas);
         canvas.addGLEventListener(menu);

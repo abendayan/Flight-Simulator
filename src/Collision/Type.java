@@ -4,6 +4,10 @@ package Collision;
  * Adele Bendayan
  * 336141056
  */
+
+/**
+ * the types of object
+ */
 public enum Type {
-    POINT, SPHERE, CYLINDER, BOX, ORIENTEDBOX, POLYGON
+    SPHERE, BOX, ORIENTEDBOX, POLYGON
 }

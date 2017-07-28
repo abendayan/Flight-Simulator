@@ -2,14 +2,12 @@ package State;
 
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.awt.AWTKeyAdapter;
-import com.jogamp.opengl.util.awt.TextRenderer;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLProfile;
 import javax.media.opengl.glu.GLU;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
@@ -23,6 +21,10 @@ import static javax.media.opengl.GL.*;
  * Adele Bendayan
  * 336141056
  */
+
+/**
+ * MenuState: takes care of the menu
+ */
 public class MenuState extends State {
     private static GLU glu;
     private Texture start;
@@ -30,7 +32,6 @@ public class MenuState extends State {
     private Texture red;
     private boolean select;
     private StateManager stateManager;
-    GLAutoDrawable glAutoDrawable;
 
     public MenuState(StateManager stateManager) {
         this.stateManager = stateManager;
@@ -51,7 +52,7 @@ public class MenuState extends State {
                 break;
             case KeyEvent.VK_ENTER:
                 if(select) {
-                    stateManager.goToGame(glAutoDrawable);
+                    stateManager.goToGame();
                 }
                 else {
                     exit(1);
@@ -68,7 +69,6 @@ public class MenuState extends State {
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
-        this.glAutoDrawable = glAutoDrawable;
         select = true;
         if (glAutoDrawable instanceof com.jogamp.newt.Window) {
             com.jogamp.newt.Window window = (com.jogamp.newt.Window) glAutoDrawable;

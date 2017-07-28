@@ -10,6 +10,10 @@ import java.util.ArrayList;
  * Adele Bendayan
  * 336141056
  */
+
+/**
+ * Class that represent a collision object of AABB type
+ */
 public class AABB extends ObjectCollision {
 
     public AABB(ArrayList<Vec3d> vertices, float[] translate, float[] scale, float[] rotate) {

@@ -19,11 +19,15 @@ import static javax.media.opengl.GL.GL_TEXTURE_2D;
  * 336141056
  */
 public class Building extends Object {
-    int building;
-    float[] scale;
-    float[] rotate;
-    Texture texture;
+    private Texture texture;
 
+    /**
+     * Constructor for the building
+     * @param translate the position
+     * @param scale the scale
+     * @param rotate the rotation
+     * @param gl opengl parameter
+     */
     public Building(float[] translate, float[] scale, float[] rotate, GL2 gl) {
         String Filename = "texture/building.jpg";
         this.translate = translate;
@@ -77,10 +81,14 @@ public class Building extends Object {
         collisionModel = new AABB(vertices, translate, scale, rotate);
     }
 
+    /**
+     * make the building
+     * @param gl opengl
+     */
     @Override
     public void makeObject(GL2 gl) {
-        building = gl.glGenLists(1);
-        gl.glNewList(building, GL2.GL_COMPILE);
+        object = gl.glGenLists(1);
+        gl.glNewList(object, GL2.GL_COMPILE);
         gl.glPushMatrix();
 
         texture.bind(gl);
@@ -152,16 +160,5 @@ public class Building extends Object {
         gl.glEnd();
         gl.glPopMatrix();
         gl.glEndList();
-    }
-
-    @SuppressWarnings("Duplicates")
-    @Override
-    public void display(GL2 gl) {
-        gl.glPushMatrix();
-        gl.glTranslatef(translate[0], translate[1], translate[2]);
-        gl.glRotatef(rotate[0], rotate[1], rotate[2], rotate[3]);
-        gl.glScalef(scale[0], scale[1], scale[2]);
-        gl.glCallList(building);
-        gl.glPopMatrix();
     }
 }

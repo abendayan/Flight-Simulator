@@ -245,9 +245,7 @@ public class Level extends Object {
         ceiling.display(gl);
         floor.display(gl);
         for (Object object : objects) {
-            if(object.exist) {
-                object.display(gl);
-            }
+            object.display(gl);
         }
 
         for(Ball ball : balls) {
@@ -284,16 +282,14 @@ public class Level extends Object {
         }
 
         for(Object object : objects) {
-            if(object.exist && !object.holding) {
-                if(temp == Impact.CONTINUE) {
-                    temp = objectCollision.impactCollision(object);
-                    if(temp != Impact.CONTINUE) {
-                        return temp;
-                    }
-                }
-                else {
+            if(temp == Impact.CONTINUE) {
+                temp = objectCollision.impactCollision(object);
+                if(temp != Impact.CONTINUE) {
                     return temp;
                 }
+            }
+            else {
+                return temp;
             }
         }
         return temp;
@@ -301,7 +297,7 @@ public class Level extends Object {
 
     /**
      * test the collision of the balls with the plane
-     * @param position
+     * @param position position of the plane
      */
     public void collisionBalls(Point position) {
         ArrayList<Ball> toDelete = new ArrayList<>();

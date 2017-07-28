@@ -13,6 +13,10 @@ import static javax.media.opengl.GL.GL_TEXTURE_2D;
  * Adele Bendayan
  * 336141056
  */
+
+/**
+ * Represent or a floor wall or a ceiling wall
+ */
 public class WallFloorCeiling extends Wall{
     private boolean floorCeiling;
     WallFloorCeiling(float Xmin, float Xmax, float Ymin, float Ymax, float Zmin, float Zmax, boolean floorCeiling) {
