@@ -1,0 +1,10 @@
+# MTL Exporter v1.0 by Seungwoo Oh at CLO - Virtual Fashion Inc.
+newmtl Material1250
+Ka 0.594602 0.594602 0.594602
+Kd 0.641400 0.641400 0.641400
+Ks 0.000000 0.000000 0.000000
+Ns 5.000000
+illum 2
+d 1.000000
+map_Ka pillow.jpg
+map_Kd pillow.jpg

@@ -40,7 +40,7 @@ public class Ball extends Object  {
         direction = new float[] { plane[0] - start[0], plane[1] - start[1], plane[2] - start[2] };
         float norm = direction[0]*direction[0] + direction[1]*direction[1] + direction[2]*direction[2];
         norm = (float)Math.sqrt((double)norm);
-        norm *= 20.0f;
+        norm *= 10.0f;
         direction[0] /= norm;
         direction[1] /= norm;
         direction[2] /= norm;

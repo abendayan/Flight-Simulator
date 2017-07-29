@@ -16,6 +16,7 @@ import com.sun.javafx.geom.Vec3d;
 
 import javax.media.opengl.*;
 import javax.media.opengl.glu.GLU;
+import javax.xml.soap.Text;
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -60,8 +61,10 @@ public class GameState extends State {
     private TextRenderer lifeText;
     private TextRenderer chronoText;
     private TextRenderer winningScreen;
+    private TextRenderer foundObject;
 
     private Integer life;
+    private Integer numberHold;
 
     /**
      * Constructor: initial all of the variables that are not dependent on opengl
@@ -76,8 +79,10 @@ public class GameState extends State {
         coordinate = new Coordinate();
         position = new Point(5.0f, 10.0f, 5.0f);
         lifeText = new TextRenderer( new Font("Arial", Font.BOLD, 20) );
+        foundObject = new TextRenderer( new Font("Arial", Font.BOLD, 20) );
         chronoText = new TextRenderer( new Font("Arial", Font.BOLD, 20) );
         winningScreen = new TextRenderer( new Font("Arial", Font.BOLD, 40) );
+        numberHold = 0;
     }
 
     /*
@@ -152,10 +157,12 @@ public class GameState extends State {
      * @param point the new position
      */
     private void impactPlane(Impact impact, Point point) {
-        if(position.y < 3.0f && impact != Impact.EXIT) {
+        if(position.y < 2.0f && impact != Impact.EXIT) {
             impact = Impact.DEAD;
         }
         switch(impact) {
+            case TAKE:
+                numberHold++;
             case CONTINUE:
                 if(position.y > 0.5f) {
                     position.x = point.x;
@@ -164,18 +171,20 @@ public class GameState extends State {
                 }
                 break;
             case EXIT:
-                movingPlane = 0.005f;
-                if(!win ) {
-                    win = true;
-                    if(currentLevel + 1 < levels.size()) {
-                        currentLevel++;
+                if(numberHold == 5 || currentLevel < 2) {
+                    movingPlane = 0.005f;
+                    if(!win ) {
+                        win = true;
+                        if(currentLevel + 1 < levels.size()) {
+                            currentLevel++;
+                        }
+                        else {
+                            endGame = System.currentTimeMillis();
+                            winAll = true;
+                        }
+                        position = new Point(5.0f, 10.0f, 5.0f);
+                        coordinate = new Coordinate();
                     }
-                    else {
-                        endGame = System.currentTimeMillis();
-                        winAll = true;
-                    }
-                    position = new Point(5.0f, 10.0f, 5.0f);
-                    coordinate = new Coordinate();
                 }
                 break;
             case HURT:
@@ -252,6 +261,7 @@ public class GameState extends State {
         /// DEFINE THIRD LEVEL //
         /////////////////////////
         defineLevel(150, 90.0f, gl);
+        levels.get(2).createObjects();
 
         currentLevel = 0;
         lastTime = System.currentTimeMillis();
@@ -283,7 +293,7 @@ public class GameState extends State {
                 new float[] { 255.0f, 255.0f, 255.0f, 255.0f }, new float[] { 255.0f, 255.0f, 255.0f, 255.0f  });
 
         level.defNumberBuilding(numberBulding, gl);
-        level.createExit(placeExit);
+        level.createExit(placeExit, gl);
 
         levels.add(level);
     }
@@ -374,6 +384,13 @@ public class GameState extends State {
             }
             lifeText.draw("Life: " + life + "/100", 120, height -40);
             lifeText.endRendering();
+
+            if(currentLevel > 1) {
+                foundObject.beginRendering(width, height);
+                foundObject.setColor(Color.WHITE);
+                foundObject.draw("objects: " + numberHold + "/5", 120, 40 );
+                foundObject.endRendering();
+            }
         }
         else {
             // we are dead

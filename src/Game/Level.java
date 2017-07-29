@@ -4,15 +4,11 @@ import Collision.Impact;
 import Collision.ObjectCollision;
 import Collision.Point;
 import Collision.Type;
-import Elements.Ball;
-import Elements.Building;
+import Elements.*;
 import Elements.Object;
-import Elements.ObjectTextured;
 import Elements.Walls.*;
 
 import javax.media.opengl.GL2;
-import javax.swing.text.Position;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -40,6 +36,8 @@ public class Level extends Object {
     public float Ymax;
     public float Zmin;
     public float Zmax;
+
+
     private ArrayList<float[]> positionL;
     private ArrayList<float[]> lightAmbient;
     private ArrayList<float[]> lightDiffuse;
@@ -72,6 +70,14 @@ public class Level extends Object {
         lightAmbient = new ArrayList<>();
         lightDiffuse = new ArrayList<>();
         lightSpecular = new ArrayList<>();
+    }
+
+    public void createObjects() {
+        for(int i = 0; i < 5; i++) {
+            ObjectTextured object = new ObjectTextured(new float[] {20.0f, 10.0f, 40.0f + 30.0f*i}, new float[] {0.01f, 0.01f, 0.01f},
+                    new float[] {0,0,0,0}, "pillow.obj", Type.BOX, Impact.TAKE);
+            addObject(object);
+        }
     }
 
     /**
@@ -150,12 +156,9 @@ public class Level extends Object {
      * Create the exit
      * @param position position of the exit
      */
-    public void createExit(float position) {
-        WallFloor exit = new WallFloor(position, position+20.0f, 1.0f, 1.0f,
-                position+20.0f, position+50.0f);
-        exit.defineTexture("runway.png", 1.0f);
-        exit.defineImpact(Impact.EXIT);
-        addObject(exit);
+    public void createExit(float position, GL2 gl) {
+        Runway runway = new Runway(new float[] {position, 1.0f, position}, gl);
+        addObject(runway);
     }
 
     /**
@@ -280,18 +283,24 @@ public class Level extends Object {
         if(temp == Impact.STOP) {
             return Impact.STOP;
         }
-
+        ArrayList<Object> toDelete = new ArrayList<>();
         for(Object object : objects) {
             if(temp == Impact.CONTINUE) {
                 temp = objectCollision.impactCollision(object);
+                if(temp == Impact.TAKE) {
+                    toDelete.add(object);
+                }
                 if(temp != Impact.CONTINUE) {
+                    objects.removeAll(toDelete);
                     return temp;
                 }
             }
             else {
+                objects.removeAll(toDelete);
                 return temp;
             }
         }
+        objects.removeAll(toDelete);
         return temp;
     }
 
