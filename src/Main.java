@@ -2,6 +2,7 @@
 import State.GameState;
 import State.MenuState;
 import State.StateManager;
+import State.TextState;
 import com.jogamp.opengl.util.Animator;
 
 import javax.media.opengl.awt.GLCanvas;
@@ -35,7 +36,9 @@ public class Main {
         final GameState gameState = new GameState();
         StateManager stateManager = new StateManager();
         final MenuState menu = new MenuState(stateManager);
+        final TextState text = new TextState(stateManager);
         stateManager.setGameState(gameState);
+        stateManager.setTextState(text);
         stateManager.setCanvas(canvas);
         canvas.addGLEventListener(menu);
 

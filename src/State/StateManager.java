@@ -12,6 +12,7 @@ import javax.media.opengl.awt.GLCanvas;
  */
 public class StateManager {
     private State gameState;
+    private State textState;
     private GLCanvas canvas;
     /**
      * define the game state
@@ -19,6 +20,10 @@ public class StateManager {
      */
     public void setGameState(State state) {
         gameState = state;
+    }
+
+    public void setTextState(State state) {
+        textState = state;
     }
 
     /**
@@ -33,5 +38,9 @@ public class StateManager {
      */
     void goToGame() {
         canvas.addGLEventListener(gameState);
+    }
+
+    void goToText() {
+        canvas.addGLEventListener(textState);
     }
 }

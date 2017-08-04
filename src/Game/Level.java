@@ -126,27 +126,27 @@ public class Level extends Object {
         for(int i = 0; i < numberBuildings; i+=5) {
             addObject(new Building(new float[] {(15.0f + j*12.0f)*0.98f, 0.0f,
                     (15.0f + i*12.0f)*0.17f},
-                    new float[]{5.0f, (float) ThreadLocalRandom.current().nextInt(8, 100), 5.0f},
+                    new float[]{5.0f, (float) ThreadLocalRandom.current().nextInt(8, 80), 5.0f},
                     new float[]{0.0f, 0.0f, 1.0f, 0.0f}, gl));
 
             addObject(new Building(new float[] {(15.0f + j*12.0f)*0.94f, 0.0f,
                     (15.0f + j*12.0f)*0.34f},
-                    new float[]{5.0f, (float) ThreadLocalRandom.current().nextInt(8, 100), 5.0f},
+                    new float[]{5.0f, (float) ThreadLocalRandom.current().nextInt(8, 80), 5.0f},
                     new float[]{0.0f, 0.0f, 1.0f, 0.0f}, gl));
 
             addObject(new Building(new float[] {(15.0f + j*12.0f)*0.87f, 0.0f,
                     (15.0f + j*12.0f)*0.5f},
-                    new float[]{5.0f, (float) ThreadLocalRandom.current().nextInt(8, 100), 5.0f},
+                    new float[]{5.0f, (float) ThreadLocalRandom.current().nextInt(8, 80), 5.0f},
                     new float[]{0.0f, 0.0f, 1.0f, 0.0f}, gl));
 
             addObject(new Building(new float[] {(15.0f + j*12.0f)*0.64f, 0.0f,
                     (15.0f + j*12.0f)*0.77f},
-                    new float[]{5.0f, (float) ThreadLocalRandom.current().nextInt(8, 100), 5.0f},
+                    new float[]{5.0f, (float) ThreadLocalRandom.current().nextInt(8, 80), 5.0f},
                     new float[]{0.0f, 0.0f, 1.0f, 0.0f}, gl));
 
             addObject(new Building(new float[] {(15.0f + j*12.0f)*0.5f, 0.0f,
                     (15.0f + j*12.0f)*0.87f},
-                    new float[]{5.0f, (float) ThreadLocalRandom.current().nextInt(8, 100), 5.0f},
+                    new float[]{5.0f, (float) ThreadLocalRandom.current().nextInt(8, 80), 5.0f},
                     new float[]{0.0f, 0.0f, 1.0f, 0.0f}, gl));
             j++;
         }

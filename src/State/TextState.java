@@ -2,6 +2,9 @@ package State;
 
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.awt.AWTKeyAdapter;
+import com.jogamp.opengl.util.awt.TextRenderer;
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureIO;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
@@ -12,56 +15,37 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
-import com.jogamp.opengl.util.awt.TextRenderer;
-import com.jogamp.opengl.util.texture.Texture;
-import com.jogamp.opengl.util.texture.TextureIO;
-
 import static java.lang.System.exit;
-import static javax.media.opengl.GL.*;
+import static javax.media.opengl.GL.GL_BLEND;
+import static javax.media.opengl.GL.GL_DEPTH_BUFFER_BIT;
+import static javax.media.opengl.GL.GL_TEXTURE_2D;
 
 /**
  * Adele Bendayan
  * 336141056
  */
-
-/**
- * MenuState: takes care of the menu
- */
-public class MenuState extends State {
+public class TextState extends State {
     private static GLU glu;
-    private Texture background;
     private Texture start;
-    private Texture exit;
-    private Texture red;
-    private boolean select;
+    private Texture background;
     private StateManager stateManager;
     private TextRenderer explain;
+    private Texture red;
 
-    public MenuState(StateManager stateManager) {
+    public TextState(StateManager stateManager) {
         this.stateManager = stateManager;
         explain = new TextRenderer( new Font("Arial", Font.BOLD, 15) );
-    }
 
+    }
     @Override
     public void keyPressed(KeyEvent keyEvent) {
         int key = keyEvent.getKeyCode();
         switch (key) {
-            case KeyEvent.VK_DOWN:
-                select = !select;
-                break;
-            case KeyEvent.VK_UP:
-                select = !select;
-                break;
             case KeyEvent.VK_ESCAPE:
                 exit(1);
                 break;
             case KeyEvent.VK_ENTER:
-                if(select) {
-                    stateManager.goToGame();
-                }
-                else {
-                    stateManager.goToText();
-                }
+                stateManager.goToGame();
                 break;
         }
 
@@ -74,7 +58,6 @@ public class MenuState extends State {
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
-        select = true;
         //noinspection Duplicates
         if (glAutoDrawable instanceof com.jogamp.newt.Window) {
             com.jogamp.newt.Window window = (com.jogamp.newt.Window) glAutoDrawable;
@@ -89,21 +72,15 @@ public class MenuState extends State {
         gl.glEnable(GL_BLEND);
         gl.glClearColor(255.0f, 255.0f, 255.0f, 255.0f);
         glu = new GLU(); //init the GLU object
-        String Filename = "texture/instruction.PNG";
+        String Filename = "texture/start.jpg";
         try {
-            exit = TextureIO.newTexture(new File( Filename ),true);
+            start = TextureIO.newTexture(new File( Filename ),true);
         } catch (IOException e) {
             e.printStackTrace();
         }
         Filename = "texture/background.jpg";
         try {
             background = TextureIO.newTexture(new File( Filename ),true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Filename = "texture/start.jpg";
-        try {
-            start = TextureIO.newTexture(new File( Filename ),true);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -152,21 +129,23 @@ public class MenuState extends State {
         gl.glPopMatrix();
 
         explain.beginRendering(600, 800);
-        explain.setColor(Color.BLACK);
-        explain.draw("Choose an option with enter,", 40, 750);
-        explain.draw("navigate with up & down", 40, 720);
+        explain.setColor(Color.BLUE);
+        explain.draw("Welcome to the flight simulator game!", 40, 700);
+        explain.draw("===Levels===", 40, 660);
+        explain.draw("Level 1: learn the game! You just have to find the exit", 40, 620);
+        explain.draw("Level 2: a bit harder! Find the exit without getting too much shot", 40, 580);
+        explain.draw("Level 3: at last! Don't get shot, and find all of the items before getting out!", 40, 540);
+        explain.draw("===Controls===", 40, 500);
+        explain.draw("The camera is the plane, moving the camera is moving the plane", 40, 460);
+        explain.draw("I, J, K, L, O, U: the rotations", 40, 420);
+        explain.draw("W: go faster", 40, 380);
+        explain.draw("S: go slower", 40, 340);
+        explain.draw("Press enter to start the game.", 40, 300);
         explain.endRendering();
 
-
-
         gl.glPushMatrix();
-        if(select){
-            gl.glTranslatef(-0.32f, 0.08f, 0.0f);
-        }
-        else {
-            gl.glTranslatef(-0.32f, -0.72f, -0.5f);
-        }
-        gl.glScalef(1.1f, 1.1f, 1.1f);
+        gl.glTranslatef(-0.32f, -0.83f, 0.0f);
+        gl.glScalef(0.9f, 0.9f, 0.9f);
         red.bind(gl);
         red.enable(gl);
         gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
@@ -190,7 +169,8 @@ public class MenuState extends State {
 
         gl.glPushMatrix();
 
-        gl.glTranslatef(-0.3f, 0.1f, 0.0f);
+        gl.glTranslatef(-0.3f, -0.8f, 0.0f);
+        gl.glScalef(0.8f, 0.8f, 0.8f);
         start.bind(gl);
         start.enable(gl);
         gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
@@ -198,30 +178,6 @@ public class MenuState extends State {
         gl.glBegin(GL2.GL_QUADS);
 
         gl.glColor3f(5.0f, 5.0f, 5.0f);
-
-        gl.glTexCoord2d(0.0f, 0.0f);
-        gl.glVertex2d(0.0f, 0.0f);
-
-        gl.glTexCoord2d(0.0f, 1.0f);
-        gl.glVertex2d(0.0f, 0.5f);
-
-        gl.glTexCoord2d(1.0f, 1.0f);
-        gl.glVertex2d(0.5f, 0.5f);
-
-        gl.glTexCoord2d(1.0f, 0.0f);
-        gl.glVertex2d(0.5f, 0.0f);
-
-        gl.glEnd();
-        gl.glPopMatrix();
-
-
-        gl.glPushMatrix();
-        gl.glTranslatef(-0.3f, -0.7f, -0.5f);
-        exit.bind(gl);
-        exit.enable(gl);
-        gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
-        gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
-        gl.glBegin(GL2.GL_QUADS);
 
         gl.glTexCoord2d(0.0f, 0.0f);
         gl.glVertex2d(0.0f, 0.0f);

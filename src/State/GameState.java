@@ -24,6 +24,7 @@ import static java.lang.System.exit;
 import static javax.media.opengl.GL.GL_DEPTH_BUFFER_BIT;
 import static javax.media.opengl.GL.GL_TEXTURE_2D;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.*;
+import java.lang.Thread;
 
 /**
  * Adele Bendayan
@@ -54,7 +55,6 @@ public class GameState extends State {
     private long endGame;
     private long currentTime;
     private float movingPlane = 0.005f;
-    private float framesPerSecond;
     private Integer currentLevel;
     private ArrayList<Level> levels;
 
@@ -62,10 +62,12 @@ public class GameState extends State {
     private TextRenderer chronoText;
     private TextRenderer winningScreen;
     private TextRenderer foundObject;
+    private GLAutoDrawable glAutoDrawable;
 
     private Integer life;
     private Integer numberHold;
 
+    private boolean ready;
     /**
      * Constructor: initial all of the variables that are not dependent on opengl
      */
@@ -83,6 +85,7 @@ public class GameState extends State {
         chronoText = new TextRenderer( new Font("Arial", Font.BOLD, 20) );
         winningScreen = new TextRenderer( new Font("Arial", Font.BOLD, 40) );
         numberHold = 0;
+        ready = false;
     }
 
     /*
@@ -130,16 +133,17 @@ public class GameState extends State {
                 coordinate.rotateY(-angle);
                 break;
             case KeyEvent.VK_O: // rotation positif - z
-                coordinate.rotateZ(angle);
+                coordinate.rotateZ(-angle);
                 break;
             case KeyEvent.VK_U: // rotation negatif - z
-                coordinate.rotateZ(-angle);
+                coordinate.rotateZ(angle);
                 break;
             case KeyEvent.VK_SPACE:
                 if(win) {
                     if(winAll) {
                         exit(1);
                     }
+                    movingPlane = 0.005f;
                     win = false;
                 }
                 if(dead) {
@@ -172,18 +176,23 @@ public class GameState extends State {
                 break;
             case EXIT:
                 if(numberHold == 5 || currentLevel < 2) {
-                    movingPlane = 0.005f;
+                    movingPlane = 0;
                     if(!win ) {
-                        win = true;
+                        ready = false;
+                        glAutoDrawable.display();
                         if(currentLevel + 1 < levels.size()) {
                             currentLevel++;
+                            win = true;
                         }
                         else {
                             endGame = System.currentTimeMillis();
                             winAll = true;
                         }
+                        win = true;
                         position = new Point(5.0f, 10.0f, 5.0f);
                         coordinate = new Coordinate();
+                        ready = true;
+                        glAutoDrawable.display();
                     }
                 }
                 break;
@@ -231,6 +240,7 @@ public class GameState extends State {
             java.awt.Component comp = (java.awt.Component) glAutoDrawable;
             new AWTKeyAdapter(this, glAutoDrawable).addTo(comp);
         }
+        this.glAutoDrawable = glAutoDrawable;
         GL2 gl = glAutoDrawable.getGL().getGL2(); // get the GL from the GLAutoDrawable
         gl.glDepthFunc(GL2.GL_LEQUAL);
         gl.glEnable(GL_TEXTURE_2D);
@@ -241,36 +251,42 @@ public class GameState extends State {
         gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST);
         glu = new GLU(); //init the GLU object
         define3D(gl);
-        gl.glEnable(GL_LIGHTING);
-        gl.glEnable(GL_LIGHT0);
-        gl.glEnable(GL_LIGHT1);
+        glAutoDrawable.display();
+        glAutoDrawable.invoke(true,
+                glAutoDrawable1 -> {
+                    gl.glEnable(GL_LIGHTING);
+                    gl.glEnable(GL_LIGHT0);
+                    gl.glEnable(GL_LIGHT1);
 
-        ////////////////////////
-        // DEFINE FIRST LEVEL //
-        ////////////////////////
-        defineLevel(80, 130.0f, gl);
-        levels.get(0).makeObject(gl);
+                    ////////////////////////
+                    // DEFINE FIRST LEVEL //
+                    ////////////////////////
+                    defineLevel(80, 130.0f, gl);
+                    levels.get(0).makeObject(gl);
 
-        //////////////////////////
-        /// DEFINE SECOND LEVEL //
-        //////////////////////////
-        defineLevel(80, 120.0f, gl);
+                    //////////////////////////
+                    /// DEFINE SECOND LEVEL //
+                    //////////////////////////
+                    defineLevel(80, 120.0f, gl);
 
 
-        /////////////////////////
-        /// DEFINE THIRD LEVEL //
-        /////////////////////////
-        defineLevel(150, 90.0f, gl);
-        levels.get(2).createObjects();
+                    /////////////////////////
+                    /// DEFINE THIRD LEVEL //
+                    /////////////////////////
+                    defineLevel(150, 120.0f, gl);
+                    levels.get(2).createObjects();
 
-        currentLevel = 0;
-        lastTime = System.currentTimeMillis();
-        startGame = System.currentTimeMillis();
-        currentTime = 0;
+                    currentLevel = 0;
+                    lastTime = System.currentTimeMillis();
+                    startGame = System.currentTimeMillis();
+                    currentTime = 0;
 
-        framesPerSecond = 0;
-        previousTimestamp = System.currentTimeMillis();
-        fps = 0.0f;
+                    previousTimestamp = System.currentTimeMillis();
+                    fps = 0.0f;
+                    ready = true;
+                    return true;
+                }
+        );
     }
 
     /**
@@ -321,6 +337,81 @@ public class GameState extends State {
         GL2 gl = glAutoDrawable.getGL().getGL2();//get the GL object
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear the depth buffer and the color buffer
         gl.glLoadIdentity(); //init the matrix
+        if(ready) {
+            if(win) {
+                // if we won
+                ifWon(gl);
+            }
+            else if(!dead){
+                // we havn't won and we are not dead
+                steep = 3.9f /1.5f;
+                angle = 12.4f /1.5f;
+                movePlane(); // move the plane
+
+                glu.gluLookAt(position.x, position.y, position.z,
+                        position.x + coordinate.Z.x, position.y + coordinate.Z.y, position.z + coordinate.Z.z,
+                        coordinate.Y.x, coordinate.Y.y, coordinate.Y.z);
+
+                levels.get(currentLevel).lightUps(gl); // activate the lights
+                //draw things using openGL
+                gl.glEnable(GL_TEXTURE_2D);
+                levels.get(currentLevel).display(gl); // display the level
+
+                if(currentLevel > 0) {
+                    // for all the levels except the first one, check the collision with the balls
+                    levels.get(currentLevel).collisionBalls(position);
+                    life = position.life;
+                }
+
+                currentTime =  System.currentTimeMillis();
+                if( currentTime - lastTime > 3000 ) {
+                    lastTime = currentTime;
+                    if(currentLevel > 0) {
+                        // every 3 seconds, shoot a new ball
+                        levels.get(currentLevel).shootBall(gl, position);
+                    }
+                }
+
+            /*
+             * draw the texts
+            */
+
+                // for the chrono
+                chronoText.beginRendering(width, height);
+                chronoText.setColor(Color.WHITE);
+                chronoText.draw((float)(System.currentTimeMillis() - startGame)/1000 + "s", width-120, height -40 );
+                chronoText.endRendering();
+
+                // for the life
+                lifeText.beginRendering(width, height);
+                if(life <= 50) {
+                    lifeText.setColor(Color.RED);
+                }
+                else {
+                    lifeText.setColor(Color.WHITE);
+                }
+                lifeText.draw("Life: " + life + "/100", 120, height -40);
+                lifeText.endRendering();
+
+                if(currentLevel > 1) {
+                    foundObject.beginRendering(width, height);
+                    foundObject.setColor(Color.WHITE);
+                    foundObject.draw("objects: " + numberHold + "/5", 120, 40 );
+                    foundObject.endRendering();
+                }
+            }
+            else {
+                // we are dead
+                drawText("Lost! Press space to try again", Color.red);
+            }
+        }
+        else {
+            drawText("Loading the game!", Color.BLUE);
+        }
+        gl.glFlush();
+    }
+
+    private void ifWon(GL2 gl) {
         if(win) {
             // if we won
             if(winAll) {
@@ -333,70 +424,8 @@ public class GameState extends State {
                 levels.get(currentLevel - 1).cleanUp();
                 levels.get(currentLevel).makeObject(gl);
             }
+            ready = true;
         }
-        else if(!dead){
-            // we havn't won and we are not dead
-            steep = 3.9f /1.5f;
-            angle = 12.4f /1.5f;
-            movePlane(); // move the plane
-
-            glu.gluLookAt(position.x, position.y, position.z,
-                    position.x + coordinate.Z.x, position.y + coordinate.Z.y, position.z + coordinate.Z.z,
-                    coordinate.Y.x, coordinate.Y.y, coordinate.Y.z);
-
-            levels.get(currentLevel).lightUps(gl); // activate the lights
-            //draw things using openGL
-            gl.glEnable(GL_TEXTURE_2D);
-            levels.get(currentLevel).display(gl); // display the level
-
-            if(currentLevel > 0) {
-                // for all the levels except the first one, check the collision with the balls
-                levels.get(currentLevel).collisionBalls(position);
-                life = position.life;
-            }
-
-            currentTime =  System.currentTimeMillis();
-            if( currentTime - lastTime > 3000 ) {
-                lastTime = currentTime;
-                if(currentLevel > 0) {
-                    // every 3 seconds, shoot a new ball
-                    levels.get(currentLevel).shootBall(gl, position);
-                }
-            }
-
-            /*
-             * draw the texts
-            */
-
-            // for the chrono
-            chronoText.beginRendering(width, height);
-            chronoText.setColor(Color.WHITE);
-            chronoText.draw((float)(System.currentTimeMillis() - startGame)/1000 + "s", width-120, height -40 );
-            chronoText.endRendering();
-
-            // for the life
-            lifeText.beginRendering(width, height);
-            if(life <= 50) {
-                lifeText.setColor(Color.RED);
-            }
-            else {
-                lifeText.setColor(Color.WHITE);
-            }
-            lifeText.draw("Life: " + life + "/100", 120, height -40);
-            lifeText.endRendering();
-
-            if(currentLevel > 1) {
-                foundObject.beginRendering(width, height);
-                foundObject.setColor(Color.WHITE);
-                foundObject.draw("objects: " + numberHold + "/5", 120, 40 );
-                foundObject.endRendering();
-            }
-        }
-        else {
-            // we are dead
-            drawText("Lost! Press space to try again", Color.red);
-        }
-        gl.glFlush();
     }
 
     /**
